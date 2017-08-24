@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<SoffidIAMPlugin xmlns="http://www.soffid.com/schema/iam-plugin-v1">
+	<name>Soffid SCIM REST Web Service</name>
+	<version>${project.version}</version>
+	<webService name="Soffid IAM Web Service API" resource="scim-${project.version}.jar" />
+</SoffidIAMPlugin>
