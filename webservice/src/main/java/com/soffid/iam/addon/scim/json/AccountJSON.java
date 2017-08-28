@@ -1,5 +1,6 @@
 package com.soffid.iam.addon.scim.json;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.johnzon.mapper.JohnzonIgnore;
@@ -12,7 +13,7 @@ public class AccountJSON extends Account {
 
 	private static final long serialVersionUID = 4544784110341469069L;
 	MetaJSON meta = new MetaJSON();
-	List<RoleDomainJSON> roles = null;
+	List<RoleDomainJSON> roles = new ArrayList<RoleDomainJSON>();
 	String password = null;
 
 	public AccountJSON() {}
