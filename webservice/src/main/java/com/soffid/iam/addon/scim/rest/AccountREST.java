@@ -184,7 +184,7 @@ public class AccountREST {
 			if (extendedAccount.getType() != null) account.setType(extendedAccount.getType());
 
 			account = accountService.updateAccount(account);
-			updateRoles(extendedAccount, account);
+			if (!extendedAccount.getRoles().isEmpty()) updateRoles(extendedAccount, account);
 
 			return SCIMResponseBuilder.responseOk(toExtendedAccount(account));
 		} catch (Exception e) {

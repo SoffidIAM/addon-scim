@@ -209,9 +209,11 @@ public class UserREST {
 			if (user.getUserName() != null) user2.setUserName(user.getUserName());
 			if (user.getUserType() != null) user2.setUserType(user.getUserType());
 			userService.update(user2);
+
 			if (user.getPassword() != null) userService.changePassword(user2.getUserName(), "DEFAULT", new Password(user.getPassword())); //$NON-NLS-1$
-			updateAccounts(user, user2);
-			updateAttributes(user, user2, false);
+			if (!user.getAccounts().isEmpty()) updateAccounts(user, user2);
+			if (!user.getAttributes().isEmpty()) updateAttributes(user, user2, false);
+
 			return SCIMResponseBuilder.responseOk(toExtendedUser(user2));
 		} catch (Exception e) {
 			return SCIMResponseBuilder.errorGeneric(e);
