@@ -65,8 +65,7 @@ public class UserJSON extends User {
 	}
 
 	/**
-	 * This field is deprecated and it doesn't be managed in the SCIM REST
-	 * request/responses
+	 * This field is deprecated and it doesn't be managed in the SCIM REST request/responses
 	 */
 	@JohnzonIgnore private Long passwordMaxAge;
 }
