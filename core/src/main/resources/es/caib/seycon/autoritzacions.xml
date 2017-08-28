@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<autoritzacions>
+	<autoritzacio>
+		<codi>scim:invoke</codi>
+		<descripcio>Access to SCIM REST Web Service Add-on</descripcio>
+		<ambit>Soffid</ambit>
+	</autoritzacio>
+</autoritzacions>

@@ -7,7 +7,7 @@
 		<version>1.0.0</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>root</artifactId>
+	<artifactId>scim-root</artifactId>
 	<groupId>com.soffid.iam.addon.scim</groupId>
 	<packaging>pom</packaging>
 	<name>Soffid IAM WebService API</name>
@@ -45,6 +45,7 @@
 	</build>
 	<modules>
 		<module>webservice</module>
+		<module>core</module>
 		<module>addon</module>
 	</modules>
 	<dependencies>

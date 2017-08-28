@@ -5,7 +5,7 @@
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>scim-webservice</artifactId>
+	<artifactId>scim-core</artifactId>
 	<packaging>jar</packaging>
 	<name>Soffid SCIM REST Web Service</name>
 	<build>
@@ -23,30 +23,5 @@
 		</plugins>
 		<pluginManagement></pluginManagement>
 	</build>
-	<dependencies>
-		<dependency>
-			<groupId>com.soffid.iam.console</groupId>
-			<artifactId>iam-core</artifactId>
-			<version>2.0.0-SNAPSHOT</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-		    <groupId>org.apache.johnzon</groupId>
-		    <artifactId>johnzon-jaxrs</artifactId>
-		    <version>1.0.0</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.tomee</groupId>
-			<artifactId>javaee-api</artifactId>
-			<version>7.0-1</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.soffid.tools</groupId>
-			<artifactId>mdagenerator</artifactId>
-			<scope>compile</scope>
-			<version>2.0.24</version>
-		</dependency>
-	</dependencies>
+	<dependencies></dependencies>
 </project>
