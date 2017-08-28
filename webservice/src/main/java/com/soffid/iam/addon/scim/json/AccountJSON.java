@@ -2,7 +2,11 @@ package com.soffid.iam.addon.scim.json;
 
 import java.util.List;
 
+import org.apache.johnzon.mapper.JohnzonIgnore;
+
 import com.soffid.iam.api.Account;
+
+import es.caib.seycon.ng.comu.AccountAccessLevelEnum;
 
 public class AccountJSON extends Account {
 
@@ -40,4 +44,9 @@ public class AccountJSON extends Account {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+
+	/**
+	 * This field is private and it doesn't be managed in the SCIM REST request/responses
+	 */
+	@JohnzonIgnore private AccountAccessLevelEnum accessLevel;
 }
