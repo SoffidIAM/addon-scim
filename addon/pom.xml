@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<parent>
 		<groupId>com.soffid.iam.addon.scim</groupId>
-		<artifactId>root</artifactId>
+		<artifactId>scim-root</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
@@ -47,7 +47,13 @@
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
-			<artifactId>scim</artifactId>
+			<artifactId>scim-webservice</artifactId>
+			<version>${project.version}</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>scim-core</artifactId>
 			<version>${project.version}</version>
 			<type>jar</type>
 		</dependency>

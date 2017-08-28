@@ -10,6 +10,8 @@ import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
+import javax.servlet.annotation.HttpConstraint;
+import javax.servlet.annotation.ServletSecurity;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -52,6 +54,7 @@ import es.caib.seycon.util.Base64;
 @Path("/scim/User")
 @Produces({"application/scim+json", "application/json"})
 @Consumes({"application/scim+json", "application/json"})
+@ServletSecurity(@HttpConstraint(rolesAllowed = {"scim:invoke"}))
 public class UserREST {
 
 	static final String RESOURCE = "User";

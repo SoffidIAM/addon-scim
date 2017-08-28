@@ -8,6 +8,8 @@ import java.util.List;
 
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
+import javax.servlet.annotation.HttpConstraint;
+import javax.servlet.annotation.ServletSecurity;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -36,6 +38,7 @@ import es.caib.seycon.ng.exception.InternalErrorException;
 @Path("/scim/Group")
 @Produces({"application/scim+json", "application/json"})
 @Consumes({"application/scim+json", "application/json"})
+@ServletSecurity(@HttpConstraint(rolesAllowed = {"scim:invoke"}))
 public class GroupREST {
 
 	static final String RESOURCE = "Group";

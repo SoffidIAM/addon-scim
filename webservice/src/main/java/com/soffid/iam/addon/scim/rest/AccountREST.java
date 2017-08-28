@@ -7,6 +7,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.ejb.EJB;
+import javax.servlet.annotation.HttpConstraint;
+import javax.servlet.annotation.ServletSecurity;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -43,6 +45,7 @@ import es.caib.seycon.ng.exception.NeedsAccountNameException;
 @Path("/scim/Account")
 @Produces({"application/scim+json", "application/json"})
 @Consumes({"application/scim+json", "application/json"})
+@ServletSecurity(@HttpConstraint(rolesAllowed = {"scim:invoke"}))
 public class AccountREST {
 
 	static final String RESOURCE = "Account";
