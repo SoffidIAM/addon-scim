@@ -25,8 +25,8 @@
 		</developer>
 	</developers>
 	<scm>
-		<connection>scm:git:ssh://git@stash.dev.lab:7999/IAM/console.git</connection>
-		<developerConnection>scm:git:ssh://git@stash.dev.lab:7999/IAM/console.git</developerConnection>
+		<connection>scm:git:ssh://git@stash.dev.lab:7999/iam2/addon-scim.git</connection>
+		<developerConnection>scm:git:ssh://git@stash.dev.lab:7999/iam2/addon-scim.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
 	<build>
