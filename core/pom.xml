@@ -2,14 +2,14 @@
 	<parent>
 		<groupId>com.soffid.iam.addon.scim</groupId>
 		<artifactId>scim-root</artifactId>
-		<version>1.0.0-SNAPSHOT</version>
+		<version>1.0.0</version>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>scim-core</artifactId>
 	<packaging>jar</packaging>
 	<name>Soffid SCIM REST Web Service</name>
 	<build>
-		<resources></resources>
+		<resources />
 		<plugins>
 			<!-- Required to Eclipse detects que right Java version in Project > Properties > Java compiler -->
 			<plugin>
@@ -21,7 +21,7 @@
 				</configuration>
 			</plugin>
 		</plugins>
-		<pluginManagement></pluginManagement>
+		<pluginManagement />
 	</build>
-	<dependencies></dependencies>
+	<dependencies />
 </project>
