@@ -166,7 +166,7 @@ public class AccountREST {
 			if (extendedAccount.isDisabled() != account.isDisabled()) account.setDisabled(extendedAccount.isDisabled());
 			if (extendedAccount.getGrantedGroups() != null) account.setGrantedGroups(extendedAccount.getGrantedGroups());
 			if (extendedAccount.getGrantedRoles() != null) account.setGrantedRoles(extendedAccount.getGrantedRoles());
-			if (extendedAccount.getGrantedRoles() != null) account.setGrantedUsers(extendedAccount.getGrantedUsers());
+			if (extendedAccount.getGrantedUsers() != null) account.setGrantedUsers(extendedAccount.getGrantedUsers());
 			if (extendedAccount.isInheritNewPermissions() != account.isInheritNewPermissions())
 				account.setInheritNewPermissions(extendedAccount.isInheritNewPermissions());
 			if (extendedAccount.getLoginUrl() != null) account.setLoginUrl(extendedAccount.getLoginUrl());
@@ -204,18 +204,23 @@ public class AccountREST {
 
 	private AccountJSON toExtendedAccount(Account acc) throws InternalErrorException {
 		AccountJSON eacc = new AccountJSON(acc);
+
+		// Add roles
 		List<RoleDomainJSON> perms = new LinkedList<RoleDomainJSON>();
-		for (RoleAccount data : applicationService.findRoleAccountByAccount(acc.getId())) {
+		for (RoleAccount data : applicationService.findRoleAccountByAccount(eacc.getId())) {
 			RoleDomainJSON perm = new RoleDomainJSON();
+			perm.setId(data.getId());
+			perm.setRoleName(data.getRoleName());
+			perm.setRoleDescription(data.getRoleDescription());
+			perm.setInformationSystemName(data.getInformationSystemName());
 			if (data.getDomainValue() != null) perm.setDomainValue(data.getDomainValue().getValue());
-			Role r = applicationService.findRoleByNameAndSystem(data.getRoleName(), data.getSystem());
-			perm.setRole(r.getId());
 			perms.add(perm);
 		}
 		eacc.setRoles(perms);
 
+		// Add SCIM tag meta
 		MetaJSON meta = eacc.getMeta();
-		meta.setLocation(getClass(), acc.getId().toString());
+		meta.setLocation(getClass(), eacc.getId().toString());
 		meta.setResourceType(RESOURCE);
 		eacc.setMeta(meta);
 
@@ -230,7 +235,7 @@ public class AccountREST {
 				Role role = applicationService.findRoleByNameAndSystem(ua.getRoleName(), ua.getSystem());
 				boolean found = false;
 				for (RoleDomainJSON ua2 : src.getRoles()) {
-					if (ua2.getRole() == role.getId().longValue()) {
+					if (ua2.getId() == role.getId().longValue()) {
 						if (ua2.getDomainValue() == null || ua2.getDomainValue().trim().isEmpty() ? ua.getDomainValue().getValue() == null
 								: ua2.getDomainValue().equals(ua.getDomainValue().getValue())) {
 							found = true;
@@ -248,7 +253,7 @@ public class AccountREST {
 				boolean found = false;
 				for (RoleAccount ua : accounts) {
 					Role role = applicationService.findRoleByNameAndSystem(ua.getRoleName(), ua.getSystem());
-					if (ua2.getRole() == role.getId().longValue()) {
+					if (ua2.getId() == role.getId().longValue()) {
 						if (ua2.getDomainValue() == null || ua2.getDomainValue().trim().isEmpty() ? ua.getDomainValue().getValue() == null
 								: ua2.getDomainValue().equals(ua.getDomainValue().getValue())) {
 							found = true;
@@ -257,7 +262,7 @@ public class AccountREST {
 					}
 				}
 				if (!found) {
-					Role role = applicationService.findRoleById(ua2.getRole());
+					Role role = applicationService.findRoleById(ua2.getId());
 					RoleAccount ra = new RoleAccount();
 					ra.setAccountName(target.getName());
 					ra.setSystem(target.getSystem());
