@@ -80,6 +80,7 @@ public class UserREST {
 			if (newUser != null) {
 				updateAccounts(user, newUser);
 				updateAttributes(user, newUser, true);
+				updateSecondaryGroups(user, newUser);
 				UserJSON eu = toExtendedUser(newUser);
 				return SCIMResponseBuilder.responseOk(eu, new URI(eu.getMeta().getLocation()));
 			} else
@@ -88,6 +89,48 @@ public class UserREST {
 			return SCIMResponseBuilder.errorCustom(Status.CONFLICT, e);
 		} catch (Exception e) {
 			return SCIMResponseBuilder.errorGeneric(e);
+		}
+	}
+
+	private void updateSecondaryGroups(UserJSON src, User target) throws InternalErrorException {
+		Collection<GroupUser> groups = groupService.findUsersGroupByUserName(target.getUserName());
+		for (GroupUser ug : groups) {
+			boolean found = false;
+			for (SecondaryGroupJSON ug2 : src.getSecondaryGroups()) {
+				if (ug2.getId() != null && ug2.getId().longValue() == ug.getId().longValue()) {
+					found = true;
+					break;
+				}
+				if (ug2.getGroup() != null && ug2.getGroup().equals(ug.getGroup()))
+				{
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				groupService.delete(ug);
+			}
+		}
+		for (SecondaryGroupJSON ug2 : src.getSecondaryGroups()) {
+			boolean found = false;
+			{
+				for (GroupUser ug : groups)
+				{
+					
+					if (ug2.getId() != null && ug2.getId().longValue() == ug.getId().longValue()) {
+						found = true;
+						break;
+					}
+					if (ug2.getGroup() != null && ug2.getGroup().equals(ug.getGroup()))
+					{
+						found = true;
+						break;
+					}
+				}
+			}
+			if (!found) {
+				groupService.addGroupToUser(target.getUserName(), ug2.getGroup());
+			}
 		}
 	}
 
@@ -165,6 +208,7 @@ public class UserREST {
 			if (user.getPassword() != null) userService.changePassword(user.getUserName(), "DEFAULT", new Password(user.getPassword())); //$NON-NLS-1$
 			updateAttributes(user, user2, true);
 			updateAccounts(user, user2);
+			updateSecondaryGroups(user, user2);
 			return SCIMResponseBuilder.responseOk(toExtendedUser(user2));
 		} catch (Exception e) {
 			return SCIMResponseBuilder.errorGeneric(e);
@@ -307,7 +351,7 @@ public class UserREST {
 		for (UserData ua : atts) {
 			Object value = src.getAttributes().get(ua.getAttribute());
 			if (value == null) {
-				if (delete || src.getAttributes().containsKey(ua.getAttribute())) dataService.delete(ua);
+				if (delete || ( src.getAttributes().containsKey(ua.getAttribute()) && ua.getId() != null)) dataService.delete(ua);
 			} else {
 				if (value instanceof Date) {
 					Calendar c = Calendar.getInstance();

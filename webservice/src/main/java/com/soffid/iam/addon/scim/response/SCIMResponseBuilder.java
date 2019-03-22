@@ -63,10 +63,12 @@ public class SCIMResponseBuilder {
 	 */
 	private static String getOriginalMessage(Exception e) {
 		if (e == null) return "";
-		String message = null;
+		String message = "";
 		Throwable throwable = e.getCause();
 		while (throwable != null) {
 			message = throwable.getMessage();
+			if (message == null)
+				message = throwable.toString();
 			throwable = throwable.getCause();
 		}
 		message = message.replaceAll("\n", " ");

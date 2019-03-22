@@ -3,6 +3,8 @@ package com.soffid.iam.addon.scim.json;
 import com.soffid.iam.api.GroupUser;
 
 public class SecondaryGroupJSON {
+	public SecondaryGroupJSON() {
+	}
 
 	private Long id = null;
 	private String group = null;
