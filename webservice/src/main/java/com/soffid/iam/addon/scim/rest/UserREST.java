@@ -87,7 +87,11 @@ public class UserREST {
 				return SCIMResponseBuilder.responseOnlyHTTP(Status.NOT_FOUND);
 		} catch (EJBException e) {
 			return SCIMResponseBuilder.errorCustom(Status.CONFLICT, e);
+		} catch (RuntimeException e) {
+			e.printStackTrace();
+			return SCIMResponseBuilder.errorGeneric(e);
 		} catch (Exception e) {
+			e.printStackTrace();
 			return SCIMResponseBuilder.errorGeneric(e);
 		}
 	}
@@ -351,7 +355,8 @@ public class UserREST {
 		for (UserData ua : atts) {
 			Object value = src.getAttributes().get(ua.getAttribute());
 			if (value == null) {
-				if (delete || ( src.getAttributes().containsKey(ua.getAttribute()) && ua.getId() != null)) dataService.delete(ua);
+				if (ua.getId()!=null && (delete || src.getAttributes().containsKey(ua.getAttribute())))
+					dataService.delete(ua);
 			} else {
 				if (value instanceof Date) {
 					Calendar c = Calendar.getInstance();
