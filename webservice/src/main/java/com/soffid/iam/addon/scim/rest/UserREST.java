@@ -261,6 +261,8 @@ public class UserREST {
 			if (user.getPassword() != null) userService.changePassword(user2.getUserName(), "DEFAULT", new Password(user.getPassword())); //$NON-NLS-1$
 			if (!user.getAccounts().isEmpty()) updateAccounts(user, user2);
 			if (!user.getAttributes().isEmpty()) updateAttributes(user, user2, false);
+			if (user.getSecondaryGroups() != null && ! user.getSecondaryGroups().isEmpty())
+				updateSecondaryGroups(user, user2);
 
 			return SCIMResponseBuilder.responseOk(toExtendedUser(user2));
 		} catch (Exception e) {
