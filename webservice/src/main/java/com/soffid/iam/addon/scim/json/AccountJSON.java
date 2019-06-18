@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.johnzon.mapper.JohnzonIgnore;
 
 import com.soffid.iam.api.Account;
+import com.soffid.iam.api.AccountStatus;
 
 import es.caib.seycon.ng.comu.AccountAccessLevelEnum;
 
@@ -50,4 +51,5 @@ public class AccountJSON extends Account {
 	 * This field is private and it doesn't be managed in the SCIM REST request/responses
 	 */
 	@JohnzonIgnore private AccountAccessLevelEnum accessLevel;
+	@JohnzonIgnore private AccountStatus status;
 }
