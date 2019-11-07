@@ -65,6 +65,8 @@ public class SCIMResponseBuilder {
 		if (e == null) return "";
 		String message = "";
 		Throwable throwable = e.getCause();
+		if (throwable==null)
+			return e.getMessage();
 		while (throwable != null) {
 			message = throwable.getMessage();
 			if (message == null)

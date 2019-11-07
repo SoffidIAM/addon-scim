@@ -2,7 +2,9 @@ package com.soffid.iam.addon.scim.rest;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -25,19 +27,21 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import com.soffid.iam.addon.scim.json.AccountJSON;
-import com.soffid.iam.addon.scim.json.RoleDomainJSON;
 import com.soffid.iam.addon.scim.json.MetaJSON;
+import com.soffid.iam.addon.scim.json.RoleDomainJSON;
 import com.soffid.iam.addon.scim.response.SCIMResponseBuilder;
 import com.soffid.iam.addon.scim.response.SCIMResponseList;
 import com.soffid.iam.addon.scim.util.PATCHAnnotation;
 import com.soffid.iam.api.Account;
 import com.soffid.iam.api.Role;
 import com.soffid.iam.api.RoleAccount;
+import com.soffid.iam.api.UserData;
 import com.soffid.iam.service.ejb.AccountService;
 import com.soffid.iam.service.ejb.ApplicationService;
 import com.soffid.iam.service.ejb.DispatcherService;
 import com.soffid.iam.service.ejb.UserService;
 
+import es.caib.seycon.ng.comu.AccountType;
 import es.caib.seycon.ng.exception.AccountAlreadyExistsException;
 import es.caib.seycon.ng.exception.InternalErrorException;
 import es.caib.seycon.ng.exception.NeedsAccountNameException;
@@ -65,8 +69,14 @@ public class AccountREST {
 	@POST
 	public Response create(AccountJSON account, @Context HttpServletRequest request) throws URISyntaxException {
 		try {
+			//check first if the account exits
+			Account existingAccount = accountService.findAccount(account.getName(), account.getSystem());
+			if (existingAccount!=null)
+				return SCIMResponseBuilder.errorCustom(Status.INTERNAL_SERVER_ERROR, "AccountSvc.accountExits");
+			// now create the account
 			Account newAccount = accountService.createAccount(account);
 			if (newAccount != null) {
+				updateAttributes(account, newAccount, true);
 				AccountJSON ea = toExtendedAccount(newAccount);
 				return SCIMResponseBuilder.responseOk(ea, new URI(ea.getMeta().getLocation()));
 			} else
@@ -118,6 +128,8 @@ public class AccountREST {
 			if (id != extendedAccount.getId())
 				return SCIMResponseBuilder.errorCustom(Status.NOT_FOUND, "AccountSvc.accountNotEquals", id, extendedAccount.getId()); //$NON-NLS-1$
 
+			account = updateAccountLinkUnlik(extendedAccount, account);
+
 			account.setAccessLevel(extendedAccount.getAccessLevel());
 			account.setAttributes(extendedAccount.getAttributes());
 			account.setDescription(extendedAccount.getDescription());
@@ -134,16 +146,14 @@ public class AccountREST {
 			account.setName(extendedAccount.getName());
 			account.setOwnerGroups(extendedAccount.getOwnerGroups());
 			account.setOwnerRoles(extendedAccount.getOwnerRoles());
-			account.setOwnerUsers(extendedAccount.getOwnerUsers());
 			account.setPasswordPolicy(extendedAccount.getPasswordPolicy());
 			account.setSystem(extendedAccount.getSystem());
 			account.setVaultFolder(extendedAccount.getVaultFolder());
 			account.setVaultFolderId(extendedAccount.getVaultFolderId());
-			account.setType(extendedAccount.getType());
 
 			account = accountService.updateAccount(account);
 			updateRoles(extendedAccount, account);
-
+			updateAttributes(extendedAccount, account, true);
 			return SCIMResponseBuilder.responseOk(toExtendedAccount(account));
 		} catch (Exception e) {
 			return SCIMResponseBuilder.errorGeneric(e);
@@ -160,8 +170,9 @@ public class AccountREST {
 			if (null != extendedAccount.getId() && id != extendedAccount.getId())
 				return SCIMResponseBuilder.errorCustom(Status.NOT_FOUND, "AccountSvc.accountNotEquals", id, extendedAccount.getId()); //$NON-NLS-1$
 
+			account = updateAccountLinkUnlik(extendedAccount, account);
+
 			if (extendedAccount.getAccessLevel() != null) account.setAccessLevel(extendedAccount.getAccessLevel());
-			if (extendedAccount.getAttributes() != null) account.setAttributes(extendedAccount.getAttributes());
 			if (extendedAccount.getDescription() != null) account.setDescription(extendedAccount.getDescription());
 			if (extendedAccount.isDisabled() != account.isDisabled()) account.setDisabled(extendedAccount.isDisabled());
 			if (extendedAccount.getGrantedGroups() != null) account.setGrantedGroups(extendedAccount.getGrantedGroups());
@@ -176,20 +187,43 @@ public class AccountREST {
 			if (extendedAccount.getName() != null) account.setName(extendedAccount.getName());
 			if (extendedAccount.getOwnerGroups() != null) account.setOwnerGroups(extendedAccount.getOwnerGroups());
 			if (extendedAccount.getOwnerRoles() != null) account.setOwnerRoles(extendedAccount.getOwnerRoles());
-			if (extendedAccount.getOwnerUsers() != null) account.setOwnerUsers(extendedAccount.getOwnerUsers());
 			if (extendedAccount.getPasswordPolicy() != null) account.setPasswordPolicy(extendedAccount.getPasswordPolicy());
 			if (extendedAccount.getSystem() != null) account.setSystem(extendedAccount.getSystem());
 			if (extendedAccount.getVaultFolder() != null) account.setVaultFolder(extendedAccount.getVaultFolder());
 			if (extendedAccount.getVaultFolderId() != null) account.setVaultFolderId(extendedAccount.getVaultFolderId());
-			if (extendedAccount.getType() != null) account.setType(extendedAccount.getType());
-
 			account = accountService.updateAccount(account);
-			if (!extendedAccount.getRoles().isEmpty()) updateRoles(extendedAccount, account);
 
+			if (!extendedAccount.getRoles().isEmpty()) updateRoles(extendedAccount, account);
+			if (extendedAccount.getAttributes()!=null && !extendedAccount.getAttributes().isEmpty()) updateAttributes(extendedAccount, account, true);
 			return SCIMResponseBuilder.responseOk(toExtendedAccount(account));
 		} catch (Exception e) {
 			return SCIMResponseBuilder.errorGeneric(e);
 		}
+	}
+
+	// If there is the type attribute could have a link or unlink operation
+	private Account updateAccountLinkUnlik(AccountJSON extendedAccount, Account account)
+			throws InternalErrorException, AccountAlreadyExistsException {
+
+		if (extendedAccount.getType() != null) {
+			if (extendedAccount.getType().equals(AccountType.USER)) {
+				account.setOwnerUsers(extendedAccount.getOwnerUsers());
+				account = accountService.updateAccount(account);
+				account.setType(extendedAccount.getType());
+				account = accountService.updateAccount(account);
+			} else {
+				account.setType(extendedAccount.getType());
+				account = accountService.updateAccount(account);
+				account.setOwnerUsers(extendedAccount.getOwnerUsers());
+				account = accountService.updateAccount(account);
+			}
+		} else {
+			if (extendedAccount.getOwnerUsers() != null) {
+				account.setOwnerUsers(extendedAccount.getOwnerUsers());
+				account = accountService.updateAccount(account);
+			}
+		}
+		return account;
 	}
 
 	private Collection<Object> toExtendedAccountList(Collection<Account> accountList) throws InternalErrorException {
@@ -235,13 +269,8 @@ public class AccountREST {
 				Role role = applicationService.findRoleByNameAndSystem(ua.getRoleName(), ua.getSystem());
 				boolean found = false;
 				for (RoleDomainJSON ua2 : src.getRoles()) {
-					if (ua2.getId() == role.getId().longValue()) {
-						if (ua2.getDomainValue() == null || ua2.getDomainValue().trim().isEmpty() ? ua.getDomainValue().getValue() == null
-								: ua2.getDomainValue().equals(ua.getDomainValue().getValue())) {
-							found = true;
-							break;
-						}
-					}
+					if (found = compareRole(ua2, ua, role))
+						break;
 				}
 				if (!found) {
 					applicationService.delete(ua);
@@ -253,22 +282,93 @@ public class AccountREST {
 				boolean found = false;
 				for (RoleAccount ua : accounts) {
 					Role role = applicationService.findRoleByNameAndSystem(ua.getRoleName(), ua.getSystem());
-					if (ua2.getId() == role.getId().longValue()) {
-						if (ua2.getDomainValue() == null || ua2.getDomainValue().trim().isEmpty() ? ua.getDomainValue().getValue() == null
-								: ua2.getDomainValue().equals(ua.getDomainValue().getValue())) {
-							found = true;
-							break;
-						}
-					}
+					if (found = compareRole(ua2, ua, role))
+						break;
 				}
 				if (!found) {
-					Role role = applicationService.findRoleById(ua2.getId());
+					Role role = null;
+					if (ua2.getId()!=null) {
+						role = applicationService.findRoleById(ua2.getId());
+					} else {
+						role = applicationService.findRoleByNameAndSystem(ua2.getRoleName(), ua2.getInformationSystemName());
+					}
 					RoleAccount ra = new RoleAccount();
 					ra.setAccountName(target.getName());
 					ra.setSystem(target.getSystem());
 					ra.setRoleName(role.getName());
 					ra.setInformationSystemName(role.getInformationSystemName());
 					ra.setAccountSystem(target.getSystem());
+					applicationService.create(ra);
+				}
+			}
+		}
+	}
+
+	private boolean compareRole(RoleDomainJSON src, RoleAccount target, Role role) {
+		if (src.getId()!=null) {
+			if (src.getId() == role.getId().longValue()) {
+				if (compareDomian(src, target))
+					return true;
+			}
+		} else {
+			if (src.getRoleName().equals(role.getName())) {
+				if (compareDomian(src, target))
+					return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean compareDomian(RoleDomainJSON src, RoleAccount target) {
+		if (src.getDomainValue() == null)
+			return true;
+		if (src.getDomainValue().trim().isEmpty() ? target.getDomainValue().getValue() == null : src.getDomainValue().equals(target.getDomainValue().getValue()))
+			return true;
+		return false;
+	}
+
+	private void updateAttributes(AccountJSON src, Account target, boolean delete)
+			throws InternalErrorException, NeedsAccountNameException, AccountAlreadyExistsException {
+		Collection<UserData> atts = accountService.getAccountAttributes(target);
+		for (UserData ua : atts) {
+			Object value = null;
+			if (src.getAttributes()!=null && !src.getAttributes().isEmpty())
+				value = src.getAttributes().get(ua.getAttribute());
+			if (value == null) {
+				if (ua.getId()!=null && (delete || src.getAttributes().containsKey(ua.getAttribute())))
+					accountService.createAccountAttribute(ua);
+			} else {
+				if (value instanceof Date) {
+					Calendar c = Calendar.getInstance();
+					c.setTime((Date) value);
+					ua.setDateValue(c);
+				} else
+					ua.setValue(value.toString());
+				accountService.updateAccountAttribute(ua);
+			}
+		}
+		if (src.getAttributes()!=null && !src.getAttributes().isEmpty()) {
+			for (String key : src.getAttributes().keySet()) {
+				boolean found = false;
+				for (UserData ua : atts) {
+					if (ua.getAttribute().equals(key)) {
+						found = true;
+						break;
+					}
+				}
+				if (!found) {
+					UserData data = new UserData();
+					data.setAccountName(src.getName());
+					data.setSystemName(src.getSystem());
+					data.setAttribute(key);
+					Object value = src.getAttributes().get(key);
+					if (value instanceof Date) {
+						Calendar c = Calendar.getInstance();
+						c.setTime((Date) value);
+						data.setDateValue(c);
+					} else
+						data.setValue(value.toString());
+					accountService.createAccountAttribute(data);
 				}
 			}
 		}

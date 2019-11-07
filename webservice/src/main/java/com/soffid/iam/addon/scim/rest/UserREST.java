@@ -355,7 +355,9 @@ public class UserREST {
 			throws InternalErrorException, NeedsAccountNameException, AccountAlreadyExistsException {
 		Collection<UserData> atts = userService.findUserDataByUserName(target.getUserName());
 		for (UserData ua : atts) {
-			Object value = src.getAttributes().get(ua.getAttribute());
+			Object value = null;
+			if (src.getAttributes()!=null && !src.getAttributes().isEmpty())
+				value = src.getAttributes().get(ua.getAttribute());
 			if (value == null) {
 				if (ua.getId()!=null && (delete || src.getAttributes().containsKey(ua.getAttribute())))
 					dataService.delete(ua);
