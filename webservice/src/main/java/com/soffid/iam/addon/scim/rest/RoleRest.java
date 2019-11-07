@@ -27,27 +27,17 @@ import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.beanutils.PropertyUtils;
 
-import com.soffid.iam.addon.scim.json.AccountJSON;
-import com.soffid.iam.addon.scim.json.RoleDomainJSON;
+import com.soffid.iam.addon.scim.json.MetaJSON;
 import com.soffid.iam.addon.scim.json.RoleGrantJSON;
 import com.soffid.iam.addon.scim.json.RoleJSON;
-import com.soffid.iam.addon.scim.json.MetaJSON;
 import com.soffid.iam.addon.scim.response.SCIMResponseBuilder;
 import com.soffid.iam.addon.scim.response.SCIMResponseList;
 import com.soffid.iam.addon.scim.util.PATCHAnnotation;
-import com.soffid.iam.api.Account;
 import com.soffid.iam.api.Role;
-import com.soffid.iam.api.RoleAccount;
 import com.soffid.iam.api.RoleGrant;
-import com.soffid.iam.service.ejb.AccountService;
 import com.soffid.iam.service.ejb.ApplicationService;
-import com.soffid.iam.service.ejb.DispatcherService;
-import com.soffid.iam.service.ejb.UserService;
 
-import es.caib.seycon.ng.exception.AccountAlreadyExistsException;
 import es.caib.seycon.ng.exception.InternalErrorException;
-import es.caib.seycon.ng.exception.NeedsAccountNameException;
-import net.sf.ehcache.util.PropertyUtil;
 
 @Path("/scim/Role")
 @Produces({"application/scim+json", "application/json"})
@@ -120,7 +110,7 @@ public class RoleRest {
 			role = appService.findRoleById(id);
 			if (role == null) return SCIMResponseBuilder.responseOnlyHTTP(Status.NOT_FOUND);
 			if (id != newRole.getId())
-				return SCIMResponseBuilder.errorCustom(Status.NOT_FOUND, "RoleSvic.accountNotEquals", id, newRole.getId()); //$NON-NLS-1$
+				return SCIMResponseBuilder.errorCustom(Status.NOT_FOUND, "RoleSvc.accountNotEquals", id, newRole.getId()); //$NON-NLS-1$
 
 			role = appService.update2(newRole);
 
@@ -138,7 +128,7 @@ public class RoleRest {
 			role = appService.findRoleById(id);
 			if (role == null) return SCIMResponseBuilder.responseOnlyHTTP(Status.NOT_FOUND);
 			if (id != newRole.getId())
-				return SCIMResponseBuilder.errorCustom(Status.NOT_FOUND, "RoleSvic.accountNotEquals", id, newRole.getId()); //$NON-NLS-1$
+				return SCIMResponseBuilder.errorCustom(Status.NOT_FOUND, "RoleSvc.accountNotEquals", id, newRole.getId()); //$NON-NLS-1$
 
 			PropertyDescriptor[] properties = PropertyUtils.getPropertyDescriptors(Role.class);
 			for ( PropertyDescriptor property: properties)
@@ -147,7 +137,7 @@ public class RoleRest {
 				if (v != null)
 					PropertyUtils.setProperty(role, property.getName(), v);
 			}
-			role = appService.update2(newRole);
+			role = appService.update2(role);
 
 			return SCIMResponseBuilder.responseOk(toRoleJSON(role));
 		} catch (Exception e) {

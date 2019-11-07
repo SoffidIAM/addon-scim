@@ -8,7 +8,10 @@ import com.soffid.iam.api.RoleDependencyStatus;
 import com.soffid.iam.api.RoleGrant;
 
 public class RoleGrantJSON extends RoleGrant {
-	@JohnzonIgnore private com.soffid.iam.api.RoleDependencyStatus status;
+	@JohnzonIgnore
+	public com.soffid.iam.api.RoleDependencyStatus getStatus() {
+		return super.getStatus();
+	}
 
 	public RoleGrantJSON() {
 		super();
