@@ -135,9 +135,16 @@ public class ApplicationRest {
 			PropertyDescriptor[] properties = PropertyUtils.getPropertyDescriptors(Application.class);
 			for ( PropertyDescriptor property: properties)
 			{
-				Object v = PropertyUtils.getProperty(newApplication, property.getName());
-				if (v != null)
-					PropertyUtils.setProperty(role, property.getName(), v);
+				if (property.getName().equals("attributes"))
+				{
+					role.getAttributes().putAll( newApplication.getAttributes());
+				}
+				else
+				{
+					Object v = PropertyUtils.getProperty(newApplication, property.getName());
+					if (v != null && property.getWriteMethod() != null)
+						PropertyUtils.setProperty(role, property.getName(), v);
+				}
 			}
 			appService.update(role);
 

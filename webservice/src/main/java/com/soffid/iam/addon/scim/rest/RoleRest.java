@@ -127,15 +127,22 @@ public class RoleRest {
 		try {
 			role = appService.findRoleById(id);
 			if (role == null) return SCIMResponseBuilder.responseOnlyHTTP(Status.NOT_FOUND);
-			if (id != newRole.getId())
+			if (newRole.getId() != null && id != newRole.getId().longValue())
 				return SCIMResponseBuilder.errorCustom(Status.NOT_FOUND, "RoleSvc.accountNotEquals", id, newRole.getId()); //$NON-NLS-1$
 
 			PropertyDescriptor[] properties = PropertyUtils.getPropertyDescriptors(Role.class);
 			for ( PropertyDescriptor property: properties)
 			{
-				Object v = PropertyUtils.getProperty(newRole, property.getName());
-				if (v != null)
-					PropertyUtils.setProperty(role, property.getName(), v);
+				if (property.getName().equals("attributes"))
+				{
+					role.getAttributes().putAll( newRole.getAttributes());
+				}
+				else
+				{
+					Object v = PropertyUtils.getProperty(newRole, property.getName());
+					if (v != null && property.getWriteMethod() != null)
+						PropertyUtils.setProperty(role, property.getName(), v);
+				}
 			}
 			role = appService.update2(role);
 
