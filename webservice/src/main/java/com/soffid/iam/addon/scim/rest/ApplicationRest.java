@@ -129,7 +129,7 @@ public class ApplicationRest {
 			Collection<Application> apps = appService.findApplicationByJsonQuery("id eq "+id);
 			if (apps == null || apps.isEmpty()) return SCIMResponseBuilder.responseOnlyHTTP(Status.NOT_FOUND);
 			role = apps.iterator().next();
-			if (id != newApplication.getId())
+			if (newApplication.getId() != null && id != newApplication.getId())
 				return SCIMResponseBuilder.errorCustom(Status.NOT_FOUND, "ApplicationSvic.accountNotEquals", id, newApplication.getId()); //$NON-NLS-1$
 
 			PropertyDescriptor[] properties = PropertyUtils.getPropertyDescriptors(Application.class);

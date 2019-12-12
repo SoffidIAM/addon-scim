@@ -59,7 +59,7 @@ public class RoleRest {
 	@POST
 	public Response create(RoleJSON role, @Context HttpServletRequest request) throws URISyntaxException {
 		try {
-			Role newRole = appService.create(role);
+			Role newRole = appService.create2(role);
 			if (newRole != null) {
 				RoleJSON ea = toRoleJSON(newRole);
 				return SCIMResponseBuilder.responseOk(ea, new URI(ea.getMeta().getLocation()));
