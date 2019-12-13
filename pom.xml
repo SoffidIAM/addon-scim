@@ -10,7 +10,7 @@
 	<groupId>com.soffid.iam.addon.scim</groupId>
 	<packaging>pom</packaging>
 	<name>Soffid IAM WebService API</name>
-	<version>1.2.3</version>
+	<version>1.2.4-SNAPSHOT</version>
 	<description>Soffid SCIM REST Web Service Add-on</description>
 	<prerequisites>
 		<maven>2.0.1</maven>
