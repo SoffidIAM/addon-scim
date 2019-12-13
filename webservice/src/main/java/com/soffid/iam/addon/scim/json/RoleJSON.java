@@ -12,6 +12,7 @@ public class RoleJSON extends Role {
 	MetaJSON meta = new MetaJSON();
 
 	public RoleJSON() {
+		setAttributes(new HashMap<String,Object>());
 	}
 
 	public RoleJSON(Role role) {

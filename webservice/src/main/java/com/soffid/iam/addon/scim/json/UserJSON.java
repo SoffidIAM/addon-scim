@@ -18,7 +18,9 @@ public class UserJSON extends User {
 	List<SecondaryGroupJSON> secondaryGroups = new LinkedList<SecondaryGroupJSON>();
 	String password = null;
 
-	public UserJSON() {}
+	public UserJSON() {
+		setAttributes(new HashMap<String,Object>());
+	}
 
 	public UserJSON(User u) {
 		super(u);

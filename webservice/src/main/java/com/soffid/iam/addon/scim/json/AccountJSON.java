@@ -1,8 +1,12 @@
 package com.soffid.iam.addon.scim.json;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
+import org.apache.johnzon.mapper.JohnzonAny;
 import org.apache.johnzon.mapper.JohnzonIgnore;
 
 import com.soffid.iam.api.Account;
@@ -17,7 +21,9 @@ public class AccountJSON extends Account {
 	List<RoleDomainJSON> roles = new ArrayList<RoleDomainJSON>();
 	String password = null;
 
-	public AccountJSON() {}
+	public AccountJSON() {
+		setAttributes(new HashMap<String,Object>());
+	}
 
 	public AccountJSON(Account u) {
 		super(u);
@@ -52,4 +58,5 @@ public class AccountJSON extends Account {
 	 */
 	@JohnzonIgnore private AccountAccessLevelEnum accessLevel;
 	@JohnzonIgnore private AccountStatus status;
+	
 }

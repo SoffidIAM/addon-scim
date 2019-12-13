@@ -7,7 +7,9 @@ public class GroupJSON extends Group {
 	private static final long serialVersionUID = 4200340767670387678L;
 	MetaJSON meta = new MetaJSON();
 
-	public GroupJSON() {}
+	public GroupJSON() {
+		setAttributes(new HashMap<String,Object>());
+	}
 
 	public GroupJSON(Group group) {
 		super(group);

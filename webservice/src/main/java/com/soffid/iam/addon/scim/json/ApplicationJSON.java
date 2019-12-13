@@ -7,6 +7,7 @@ public class ApplicationJSON extends Application {
 	MetaJSON meta = new MetaJSON();
 
 	public ApplicationJSON() {
+		setAttributes(new HashMap<String,Object>());
 	}
 
 	public ApplicationJSON(Application role) {
