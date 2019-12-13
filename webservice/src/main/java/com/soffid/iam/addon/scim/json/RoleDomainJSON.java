@@ -1,4 +1,5 @@
 package com.soffid.iam.addon.scim.json;
+import java.util.HashMap;
 
 public class RoleDomainJSON {
 

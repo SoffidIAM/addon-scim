@@ -3,6 +3,7 @@ package com.soffid.iam.addon.scim.json;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Date;
+import java.util.HashMap;
 
 import javax.ws.rs.Path;
 

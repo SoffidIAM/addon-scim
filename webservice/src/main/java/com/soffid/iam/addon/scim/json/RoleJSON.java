@@ -2,6 +2,7 @@ package com.soffid.iam.addon.scim.json;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashMap;
 
 import org.apache.johnzon.mapper.JohnzonIgnore;
 

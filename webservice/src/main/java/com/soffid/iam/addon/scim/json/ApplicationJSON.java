@@ -1,6 +1,7 @@
 package com.soffid.iam.addon.scim.json;
 
 import com.soffid.iam.api.Application;
+import java.util.HashMap;
 
 public class ApplicationJSON extends Application {
 	private static final long serialVersionUID = 1L;

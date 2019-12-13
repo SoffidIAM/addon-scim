@@ -1,6 +1,7 @@
 package com.soffid.iam.addon.scim.json;
 
 import com.soffid.iam.api.Group;
+import java.util.HashMap;
 
 public class GroupJSON extends Group {
 
