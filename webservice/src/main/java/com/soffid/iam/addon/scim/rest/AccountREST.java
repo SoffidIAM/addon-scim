@@ -26,6 +26,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.logging.LogFactory;
+import org.jfree.util.Log;
+
 import com.soffid.iam.addon.scim.json.AccountJSON;
 import com.soffid.iam.addon.scim.json.MetaJSON;
 import com.soffid.iam.addon.scim.json.RoleDomainJSON;
@@ -33,6 +36,7 @@ import com.soffid.iam.addon.scim.response.SCIMResponseBuilder;
 import com.soffid.iam.addon.scim.response.SCIMResponseList;
 import com.soffid.iam.addon.scim.util.PATCHAnnotation;
 import com.soffid.iam.api.Account;
+import com.soffid.iam.api.DomainValue;
 import com.soffid.iam.api.Role;
 import com.soffid.iam.api.RoleAccount;
 import com.soffid.iam.api.UserData;
@@ -51,7 +55,8 @@ import es.caib.seycon.ng.exception.NeedsAccountNameException;
 @Consumes({"application/scim+json", "application/json"})
 @ServletSecurity(@HttpConstraint(rolesAllowed = {"scim:invoke"}))
 public class AccountREST {
-
+	org.apache.commons.logging.Log log = LogFactory.getLog(getClass());
+	
 	static final String RESOURCE = "Account";
 	@EJB AccountService accountService;
 	@EJB UserService userService;
@@ -197,6 +202,7 @@ public class AccountREST {
 			if (extendedAccount.getAttributes()!=null && !extendedAccount.getAttributes().isEmpty()) updateAttributes(extendedAccount, account, true);
 			return SCIMResponseBuilder.responseOk(toExtendedAccount(account));
 		} catch (Exception e) {
+			log.warn("Error updating account", e);
 			return SCIMResponseBuilder.errorGeneric(e);
 		}
 	}
@@ -243,7 +249,8 @@ public class AccountREST {
 		List<RoleDomainJSON> perms = new LinkedList<RoleDomainJSON>();
 		for (RoleAccount data : applicationService.findRoleAccountByAccount(eacc.getId())) {
 			RoleDomainJSON perm = new RoleDomainJSON();
-			perm.setId(data.getId());
+			Role role = applicationService.findRoleByNameAndSystem(data.getRoleName(), data.getSystem());
+			perm.setId(role.getId());
 			perm.setRoleName(data.getRoleName());
 			perm.setRoleDescription(data.getRoleDescription());
 			perm.setInformationSystemName(data.getInformationSystemName());
@@ -289,14 +296,25 @@ public class AccountREST {
 					Role role = null;
 					if (ua2.getId()!=null) {
 						role = applicationService.findRoleById(ua2.getId());
+						if (role == null)
+							throw new InternalErrorException("Cannot find role "+ua2.getId());
 					} else {
-						role = applicationService.findRoleByNameAndSystem(ua2.getRoleName(), ua2.getInformationSystemName());
+						role = applicationService.findRoleByNameAndSystem(ua2.getRoleName(), target.getSystem());
+						if (role == null)
+							throw new InternalErrorException("Cannot find role "+ua2.getRoleName());
 					}
 					RoleAccount ra = new RoleAccount();
 					ra.setAccountName(target.getName());
 					ra.setSystem(target.getSystem());
 					ra.setRoleName(role.getName());
 					ra.setInformationSystemName(role.getInformationSystemName());
+					ra.setDomainValue(new DomainValue());
+					ra.getDomainValue().setDomainName(role.getDomain().getName());
+					ra.getDomainValue().setExternalCodeDomain(role.getDomain().getExternalCode());
+					if (ua2.getDomainValue() != null)
+					{
+						ra.getDomainValue().setValue(ua2.getDomainValue());
+					}
 					ra.setAccountSystem(target.getSystem());
 					applicationService.create(ra);
 				}
