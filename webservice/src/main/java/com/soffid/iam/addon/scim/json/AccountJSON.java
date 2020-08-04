@@ -19,6 +19,7 @@ public class AccountJSON extends Account {
 	private static final long serialVersionUID = 4544784110341469069L;
 	MetaJSON meta = new MetaJSON();
 	List<RoleDomainJSON> roles = new ArrayList<RoleDomainJSON>();
+	List<RoleDomainJSON> inheritedRoles = new ArrayList<RoleDomainJSON>();
 	String password = null;
 
 	public AccountJSON() {
@@ -58,5 +59,13 @@ public class AccountJSON extends Account {
 	 */
 	@JohnzonIgnore private AccountAccessLevelEnum accessLevel;
 	@JohnzonIgnore private AccountStatus status;
+
+	public List<RoleDomainJSON> getInheritedRoles() {
+		return inheritedRoles;
+	}
+
+	public void setInheritedRoles(List<RoleDomainJSON> inheritedRoles) {
+		this.inheritedRoles = inheritedRoles;
+	}
 	
 }

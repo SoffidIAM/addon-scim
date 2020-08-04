@@ -39,6 +39,7 @@ import com.soffid.iam.api.Account;
 import com.soffid.iam.api.DomainValue;
 import com.soffid.iam.api.Role;
 import com.soffid.iam.api.RoleAccount;
+import com.soffid.iam.api.RoleGrant;
 import com.soffid.iam.api.UserData;
 import com.soffid.iam.service.ejb.AccountService;
 import com.soffid.iam.service.ejb.ApplicationService;
@@ -65,9 +66,12 @@ public class AccountREST {
 
 	@Path("")
 	@GET
-	public Response list(@QueryParam("filter") @DefaultValue("") String filter, @QueryParam("attributes") String atts)
+	public Response list(@QueryParam("filter") @DefaultValue("") String filter,
+			@QueryParam("attributes") @DefaultValue("") String attributes, @QueryParam("attributes") String atts)
 			throws InternalErrorException {
-		return SCIMResponseBuilder.responseList(new SCIMResponseList(toExtendedAccountList(accountService.findAccountByJsonQuery(filter))));
+		return SCIMResponseBuilder.responseList(new SCIMResponseList(
+				toExtendedAccountList(accountService.findAccountByJsonQuery(filter),
+						attributes)));
 	}
 
 	@Path("")
@@ -82,7 +86,7 @@ public class AccountREST {
 			Account newAccount = accountService.createAccount(account);
 			if (newAccount != null) {
 				updateAttributes(account, newAccount, true);
-				AccountJSON ea = toExtendedAccount(newAccount);
+				AccountJSON ea = toExtendedAccount(newAccount, null);
 				return SCIMResponseBuilder.responseOk(ea, new URI(ea.getMeta().getLocation()));
 			} else
 				return SCIMResponseBuilder.responseOnlyHTTP(Status.NOT_FOUND);
@@ -93,12 +97,13 @@ public class AccountREST {
 
 	@Path("/{id}")
 	@GET
-	public Response show(@PathParam("id") long id) {
+	public Response show(@QueryParam("attributes") @DefaultValue("") String attributes, 
+			@PathParam("id") long id) {
 		Account user;
 		try {
 			user = accountService.findAccountById(id);
 			if (user != null)
-				return SCIMResponseBuilder.responseOk(toExtendedAccount(user));
+				return SCIMResponseBuilder.responseOk(toExtendedAccount(user, attributes));
 			else
 				return SCIMResponseBuilder.responseOnlyHTTP(Status.NOT_FOUND);
 		} catch (InternalErrorException e) {
@@ -159,7 +164,7 @@ public class AccountREST {
 			account = accountService.updateAccount(account);
 			updateRoles(extendedAccount, account);
 			updateAttributes(extendedAccount, account, true);
-			return SCIMResponseBuilder.responseOk(toExtendedAccount(account));
+			return SCIMResponseBuilder.responseOk(toExtendedAccount(account, null));
 		} catch (Exception e) {
 			return SCIMResponseBuilder.errorGeneric(e);
 		}
@@ -200,7 +205,7 @@ public class AccountREST {
 
 			if (!extendedAccount.getRoles().isEmpty()) updateRoles(extendedAccount, account);
 			if (extendedAccount.getAttributes()!=null && !extendedAccount.getAttributes().isEmpty()) updateAttributes(extendedAccount, account, true);
-			return SCIMResponseBuilder.responseOk(toExtendedAccount(account));
+			return SCIMResponseBuilder.responseOk(toExtendedAccount(account, null));
 		} catch (Exception e) {
 			log.warn("Error updating account", e);
 			return SCIMResponseBuilder.errorGeneric(e);
@@ -232,17 +237,17 @@ public class AccountREST {
 		return account;
 	}
 
-	private Collection<Object> toExtendedAccountList(Collection<Account> accountList) throws InternalErrorException {
+	private Collection<Object> toExtendedAccountList(Collection<Account> accountList, String attributes) throws InternalErrorException {
 		List<Object> extendedAccountList = new LinkedList<Object>();
 		if (null != accountList && !accountList.isEmpty()) {
 			for (Account account : accountList) {
-				extendedAccountList.add(toExtendedAccount(account));
+				extendedAccountList.add(toExtendedAccount(account, attributes));
 			}
 		}
 		return extendedAccountList;
 	}
 
-	private AccountJSON toExtendedAccount(Account acc) throws InternalErrorException {
+	private AccountJSON toExtendedAccount(Account acc, String attributes) throws InternalErrorException {
 		AccountJSON eacc = new AccountJSON(acc);
 
 		// Add roles
@@ -259,6 +264,20 @@ public class AccountREST {
 		}
 		eacc.setRoles(perms);
 
+		List<RoleDomainJSON> perms2 = new LinkedList<RoleDomainJSON>();
+		if (attributes != null && attributes.contains("inheritedRoles")) {
+			for (RoleGrant data : applicationService.findEffectiveRoleGrantByAccount(eacc.getId())) {
+				RoleDomainJSON perm = new RoleDomainJSON();
+				Role role = applicationService.findRoleByNameAndSystem(data.getRoleName(), data.getSystem());
+				perm.setId(role.getId());
+				perm.setRoleName(data.getRoleName());
+				perm.setRoleDescription(role.getDescription());
+				perm.setInformationSystemName(role.getInformationSystemName());
+				if (data.getDomainValue() != null) perm.setDomainValue(data.getDomainValue());
+				perms2.add(perm);
+			}
+			eacc.setInheritedRoles(perms2);
+		}
 		// Add SCIM tag meta
 		MetaJSON meta = eacc.getMeta();
 		meta.setLocation(getClass(), eacc.getId().toString());
