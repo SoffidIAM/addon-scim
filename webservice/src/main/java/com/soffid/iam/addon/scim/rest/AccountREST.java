@@ -203,7 +203,7 @@ public class AccountREST {
 			if (extendedAccount.getVaultFolderId() != null) account.setVaultFolderId(extendedAccount.getVaultFolderId());
 			account = accountService.updateAccount(account);
 
-			if (!extendedAccount.getRoles().isEmpty()) updateRoles(extendedAccount, account);
+			if (extendedAccount.getRoles() != null) updateRoles(extendedAccount, account);
 			if (extendedAccount.getAttributes()!=null && !extendedAccount.getAttributes().isEmpty()) updateAttributes(extendedAccount, account, true);
 			return SCIMResponseBuilder.responseOk(toExtendedAccount(account, null));
 		} catch (Exception e) {
@@ -290,20 +290,20 @@ public class AccountREST {
 	private void updateRoles(AccountJSON src, Account target)
 			throws InternalErrorException, NeedsAccountNameException, AccountAlreadyExistsException {
 		Collection<RoleAccount> accounts = applicationService.findRoleAccountByAccount(target.getId());
-		for (RoleAccount ua : accounts) {
-			if (ua.getRuleId() == null) {
-				Role role = applicationService.findRoleByNameAndSystem(ua.getRoleName(), ua.getSystem());
-				boolean found = false;
-				for (RoleDomainJSON ua2 : src.getRoles()) {
-					if (found = compareRole(ua2, ua, role))
-						break;
-				}
-				if (!found) {
-					applicationService.delete(ua);
+		if (null != src.getRoles()) {
+			for (RoleAccount ua : accounts) {
+				if (ua.getRuleId() == null) {
+					Role role = applicationService.findRoleByNameAndSystem(ua.getRoleName(), ua.getSystem());
+					boolean found = false;
+					for (RoleDomainJSON ua2 : src.getRoles()) {
+						if (found = compareRole(ua2, ua, role))
+							break;
+					}
+					if (!found) {
+						applicationService.delete(ua);
+					}
 				}
 			}
-		}
-		if (null != src.getRoles()) {
 			for (RoleDomainJSON ua2 : src.getRoles()) {
 				boolean found = false;
 				for (RoleAccount ua : accounts) {

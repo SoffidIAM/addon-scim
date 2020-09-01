@@ -18,12 +18,13 @@ public class AccountJSON extends Account {
 
 	private static final long serialVersionUID = 4544784110341469069L;
 	MetaJSON meta = new MetaJSON();
-	List<RoleDomainJSON> roles = new ArrayList<RoleDomainJSON>();
+	List<RoleDomainJSON> roles = null;
 	List<RoleDomainJSON> inheritedRoles = new ArrayList<RoleDomainJSON>();
 	String password = null;
 
 	public AccountJSON() {
 		setAttributes(new HashMap<String,Object>());
+		setRoles(null);
 	}
 
 	public AccountJSON(Account u) {
