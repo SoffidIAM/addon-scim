@@ -27,7 +27,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.commons.logging.LogFactory;
-import org.jfree.util.Log;
 
 import com.soffid.iam.addon.scim.json.AccountJSON;
 import com.soffid.iam.addon.scim.json.MetaJSON;
@@ -35,6 +34,7 @@ import com.soffid.iam.addon.scim.json.RoleDomainJSON;
 import com.soffid.iam.addon.scim.response.SCIMResponseBuilder;
 import com.soffid.iam.addon.scim.response.SCIMResponseList;
 import com.soffid.iam.addon.scim.util.PATCHAnnotation;
+import com.soffid.iam.addon.scim.util.PaginationUtil;
 import com.soffid.iam.api.Account;
 import com.soffid.iam.api.DomainValue;
 import com.soffid.iam.api.Role;
@@ -67,11 +67,12 @@ public class AccountREST {
 	@Path("")
 	@GET
 	public Response list(@QueryParam("filter") @DefaultValue("") String filter,
-			@QueryParam("attributes") @DefaultValue("") String attributes, @QueryParam("attributes") String atts)
+			@QueryParam("attributes") @DefaultValue("") String attributes, @QueryParam("attributes") String atts,
+			@QueryParam("startIndex") @DefaultValue("") String startIndex, @QueryParam("count") @DefaultValue("") String count)
 			throws InternalErrorException {
-		return SCIMResponseBuilder.responseList(new SCIMResponseList(
-				toExtendedAccountList(accountService.findAccountByJsonQuery(filter),
-						attributes)));
+
+		PaginationUtil p = new PaginationUtil(startIndex, count);
+		return SCIMResponseBuilder.responseList(new SCIMResponseList(toExtendedAccountList(accountService.findAccountByJsonQuery(filter), attributes, p), p));
 	}
 
 	@Path("")
@@ -237,11 +238,20 @@ public class AccountREST {
 		return account;
 	}
 
-	private Collection<Object> toExtendedAccountList(Collection<Account> accountList, String attributes) throws InternalErrorException {
+	private Collection<Object> toExtendedAccountList(Collection<Account> accountList, String attributes, PaginationUtil p) throws InternalErrorException {
 		List<Object> extendedAccountList = new LinkedList<Object>();
-		if (null != accountList && !accountList.isEmpty()) {
-			for (Account account : accountList) {
-				extendedAccountList.add(toExtendedAccount(account, attributes));
+		if (p.isActive()) {
+			p.setTotalResults(accountList.size());
+			Object[] aa = accountList.toArray();
+			while (p.isItem()) {
+				extendedAccountList.add(toExtendedAccount((Account) aa[p.getItem()], attributes));
+				p.nextItem();
+			}
+		} else {
+			if (null != accountList && !accountList.isEmpty()) {
+				for (Account account : accountList) {
+					extendedAccountList.add(toExtendedAccount(account, attributes));
+				}
 			}
 		}
 		return extendedAccountList;

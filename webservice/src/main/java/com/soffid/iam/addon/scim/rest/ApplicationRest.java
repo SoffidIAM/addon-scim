@@ -32,6 +32,7 @@ import com.soffid.iam.addon.scim.json.MetaJSON;
 import com.soffid.iam.addon.scim.response.SCIMResponseBuilder;
 import com.soffid.iam.addon.scim.response.SCIMResponseList;
 import com.soffid.iam.addon.scim.util.PATCHAnnotation;
+import com.soffid.iam.addon.scim.util.PaginationUtil;
 import com.soffid.iam.api.Application;
 import com.soffid.iam.service.ejb.ApplicationService;
 
@@ -48,9 +49,12 @@ public class ApplicationRest {
 
 	@Path("")
 	@GET
-	public Response list(@QueryParam("filter") @DefaultValue("") String filter, @QueryParam("attributes") String atts)
+	public Response list(@QueryParam("filter") @DefaultValue("") String filter, @QueryParam("attributes") String atts,
+			@QueryParam("startIndex") @DefaultValue("") String startIndex, @QueryParam("count") @DefaultValue("") String count)
 			throws InternalErrorException {
-		return SCIMResponseBuilder.responseList(new SCIMResponseList(toApplicationJSONList(appService.findApplicationByJsonQuery(filter))));
+
+		PaginationUtil p = new PaginationUtil(startIndex, count);
+		return SCIMResponseBuilder.responseList(new SCIMResponseList(toApplicationJSONList(appService.findApplicationByJsonQuery(filter), p), p));
 	}
 
 	@Path("")
@@ -154,14 +158,23 @@ public class ApplicationRest {
 		}
 	}
 
-	private Collection<Object> toApplicationJSONList(Collection<Application> accountList) throws InternalErrorException {
-		List<Object> extendedAccountList = new LinkedList<Object>();
-		if (null != accountList && !accountList.isEmpty()) {
-			for (Application account : accountList) {
-				extendedAccountList.add(toApplicationJSON(account));
+	private Collection<Object> toApplicationJSONList(Collection<Application> applicationList, PaginationUtil p) throws InternalErrorException {
+		List<Object> extendedAApplicationList = new LinkedList<Object>();
+		if (p.isActive()) {
+			p.setTotalResults(applicationList.size());
+			Object[] aa = applicationList.toArray();
+			while (p.isItem()) {
+				extendedAApplicationList.add(toApplicationJSON((Application) aa[p.getItem()]));
+				p.nextItem();
+			}
+		} else {
+			if (null != applicationList && !applicationList.isEmpty()) {
+				for (Application application : applicationList) {
+					extendedAApplicationList.add(toApplicationJSON(application));
+				}
 			}
 		}
-		return extendedAccountList;
+		return extendedAApplicationList;
 	}
 
 	private ApplicationJSON toApplicationJSON(Application role) throws InternalErrorException {

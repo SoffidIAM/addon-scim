@@ -34,6 +34,7 @@ import com.soffid.iam.addon.scim.json.UserJSON;
 import com.soffid.iam.addon.scim.response.SCIMResponseBuilder;
 import com.soffid.iam.addon.scim.response.SCIMResponseList;
 import com.soffid.iam.addon.scim.util.PATCHAnnotation;
+import com.soffid.iam.addon.scim.util.PaginationUtil;
 import com.soffid.iam.api.GroupUser;
 import com.soffid.iam.api.Password;
 import com.soffid.iam.api.User;
@@ -67,9 +68,12 @@ public class UserREST {
 
 	@Path("")
 	@GET
-	public Response list(@QueryParam("filter") @DefaultValue("") String filter, @QueryParam("attributes") String atts)
+	public Response list(@QueryParam("filter") @DefaultValue("") String filter, @QueryParam("attributes") String atts,
+			@QueryParam("startIndex") @DefaultValue("") String startIndex, @QueryParam("count") @DefaultValue("") String count)
 			throws InternalErrorException {
-		return SCIMResponseBuilder.responseList(new SCIMResponseList(toExtendedUserList(userService.findUserByJsonQuery(filter))));
+
+		PaginationUtil p = new PaginationUtil(startIndex, count);
+		return SCIMResponseBuilder.responseList(new SCIMResponseList(toExtendedUserList(userService.findUserByJsonQuery(filter), p), p));
 	}
 
 	@Path("")
@@ -270,11 +274,20 @@ public class UserREST {
 		}
 	}
 
-	private Collection<Object> toExtendedUserList(Collection<User> userList) throws InternalErrorException {
-		List<Object> extendedUserList = new LinkedList<Object>();
-		if (null != userList && !userList.isEmpty()) {
-			for (User user : userList) {
-				extendedUserList.add(toExtendedUser(user));
+	private Collection<Object> toExtendedUserList(Collection<User> userList, PaginationUtil p) throws InternalErrorException {
+		LinkedList<Object> extendedUserList = new LinkedList<Object>();
+		if (p.isActive()) {
+			p.setTotalResults(userList.size());
+			Object[] ua = userList.toArray();
+			while (p.isItem()) {
+				extendedUserList.add(toExtendedUser((User) ua[p.getItem()]));
+				p.nextItem();
+			}
+		} else {
+			if (null != userList && !userList.isEmpty()) {
+				for (User user : userList) {
+					extendedUserList.add(toExtendedUser(user));
+				}
 			}
 		}
 		return extendedUserList;

@@ -33,6 +33,7 @@ import com.soffid.iam.addon.scim.json.RoleJSON;
 import com.soffid.iam.addon.scim.response.SCIMResponseBuilder;
 import com.soffid.iam.addon.scim.response.SCIMResponseList;
 import com.soffid.iam.addon.scim.util.PATCHAnnotation;
+import com.soffid.iam.addon.scim.util.PaginationUtil;
 import com.soffid.iam.api.Role;
 import com.soffid.iam.api.RoleGrant;
 import com.soffid.iam.service.ejb.ApplicationService;
@@ -50,9 +51,12 @@ public class RoleRest {
 
 	@Path("")
 	@GET
-	public Response list(@QueryParam("filter") @DefaultValue("") String filter, @QueryParam("attributes") String atts)
+	public Response list(@QueryParam("filter") @DefaultValue("") String filter, @QueryParam("attributes") String atts,
+			@QueryParam("startIndex") @DefaultValue("") String startIndex, @QueryParam("count") @DefaultValue("") String count)
 			throws InternalErrorException {
-		return SCIMResponseBuilder.responseList(new SCIMResponseList(toRoleJSONList(appService.findRoleByJsonQuery(filter))));
+
+		PaginationUtil p = new PaginationUtil(startIndex, count);
+		return SCIMResponseBuilder.responseList(new SCIMResponseList(toRoleJSONList(appService.findRoleByJsonQuery(filter), p), p));
 	}
 
 	@Path("")
@@ -152,14 +156,23 @@ public class RoleRest {
 		}
 	}
 
-	private Collection<Object> toRoleJSONList(Collection<Role> accountList) throws InternalErrorException {
-		List<Object> extendedAccountList = new LinkedList<Object>();
-		if (null != accountList && !accountList.isEmpty()) {
-			for (Role account : accountList) {
-				extendedAccountList.add(toRoleJSON(account));
+	private Collection<Object> toRoleJSONList(Collection<Role> roleList, PaginationUtil p) throws InternalErrorException {
+		List<Object> extendedRoleList = new LinkedList<Object>();
+		if (p.isActive()) {
+			p.setTotalResults(roleList.size());
+			Object[] ua = roleList.toArray();
+			while (p.isItem()) {
+				extendedRoleList.add(toRoleJSON((Role) ua[p.getItem()]));
+				p.nextItem();
+			}
+		} else {
+			if (null != roleList && !roleList.isEmpty()) {
+				for (Role account : roleList) {
+					extendedRoleList.add(toRoleJSON(account));
+				}
 			}
 		}
-		return extendedAccountList;
+		return extendedRoleList;
 	}
 
 	private RoleJSON toRoleJSON(Role role) throws InternalErrorException {
