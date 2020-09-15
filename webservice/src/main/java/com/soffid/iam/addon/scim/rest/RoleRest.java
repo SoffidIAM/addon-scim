@@ -4,6 +4,7 @@ import java.beans.PropertyDescriptor;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -34,6 +35,7 @@ import com.soffid.iam.addon.scim.response.SCIMResponseBuilder;
 import com.soffid.iam.addon.scim.response.SCIMResponseList;
 import com.soffid.iam.addon.scim.util.PATCHAnnotation;
 import com.soffid.iam.addon.scim.util.PaginationUtil;
+import com.soffid.iam.api.AsyncList;
 import com.soffid.iam.api.Role;
 import com.soffid.iam.api.RoleGrant;
 import com.soffid.iam.service.ejb.ApplicationService;
@@ -53,10 +55,42 @@ public class RoleRest {
 	@GET
 	public Response list(@QueryParam("filter") @DefaultValue("") String filter, @QueryParam("attributes") String atts,
 			@QueryParam("startIndex") @DefaultValue("") String startIndex, @QueryParam("count") @DefaultValue("") String count)
-			throws InternalErrorException {
+			throws Throwable {
 
 		PaginationUtil p = new PaginationUtil(startIndex, count);
-		return SCIMResponseBuilder.responseList(new SCIMResponseList(toRoleJSONList(appService.findRoleByJsonQuery(filter), p), p));
+		List<Object> r = new LinkedList<>();
+		int index = 1;
+		AsyncList<Role> l = appService.findRoleByJsonQueryAsync(filter);
+		while ( ! l.isDone() && ! l.isCancelled()) {
+			Thread.sleep(50);
+			Iterator<Role> iterator = l.iterator();
+			for (int i = 1 ; i < index && iterator.hasNext(); i++)
+				iterator.next();
+			
+			while (index < p.getStartIndex() && iterator.hasNext()) {
+				iterator.next();
+				index ++;
+			}
+			while ( iterator.hasNext() && index < p.getStartIndex() + p.getCount()) {
+				Role role = iterator.next();
+				index ++;
+			}
+			if (iterator.hasNext()  && index >= p.getStartIndex() + p.getCount())
+			{
+				index ++;
+				l.cancel();
+			}
+		}
+		if (l.isCancelled() && l.getExceptionToThrow() != null) {
+			if (l.getExceptionToThrow() instanceof Exception)
+				return SCIMResponseBuilder.errorGeneric((Exception) l.getExceptionToThrow());
+			else
+				throw l.getExceptionToThrow();
+		} else {
+			p.setTotalResults(index - 1);
+			SCIMResponseList scimResponseList = new SCIMResponseList(r, p);
+			return SCIMResponseBuilder.responseList(scimResponseList);
+		}
 	}
 
 	@Path("")
@@ -203,3 +237,4 @@ public class RoleRest {
 		return l;
 	}
 }
+

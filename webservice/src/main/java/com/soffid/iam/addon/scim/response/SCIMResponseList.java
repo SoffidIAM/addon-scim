@@ -49,4 +49,24 @@ public class SCIMResponseList {
 	public void setResources(Collection<Object> resources) {
 		this.resources = resources;
 	}
+
+	public int getItemsPerPage() {
+		return itemsPerPage;
+	}
+
+	public void setItemsPerPage(int itemsPerPage) {
+		this.itemsPerPage = itemsPerPage;
+	}
+
+	public int getStartIndex() {
+		return startIndex;
+	}
+
+	public void setStartIndex(int startIndex) {
+		this.startIndex = startIndex;
+	}
+
+	public void setTotalResults(int totalResults) {
+		this.totalResults = totalResults;
+	}
 }
