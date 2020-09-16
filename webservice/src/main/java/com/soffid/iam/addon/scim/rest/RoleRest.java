@@ -73,6 +73,7 @@ public class RoleRest {
 			}
 			while ( iterator.hasNext() && index < p.getStartIndex() + p.getCount()) {
 				Role role = iterator.next();
+				r.add(role);
 				index ++;
 			}
 			if (iterator.hasNext()  && index >= p.getStartIndex() + p.getCount())
@@ -87,9 +88,12 @@ public class RoleRest {
 			else
 				throw l.getExceptionToThrow();
 		} else {
-			p.setTotalResults(index - 1);
-			SCIMResponseList scimResponseList = new SCIMResponseList(r, p);
-			return SCIMResponseBuilder.responseList(scimResponseList);
+			p.setTotalResults(index-1);
+			SCIMResponseList rl = new SCIMResponseList(r);
+			rl.setTotalResults(index-1);
+			rl.setItemsPerPage(r.size());
+			rl.setStartIndex(p.getStartIndex());
+			return SCIMResponseBuilder.responseList(rl);
 		}
 	}
 
