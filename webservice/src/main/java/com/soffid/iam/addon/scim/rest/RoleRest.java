@@ -60,25 +60,46 @@ public class RoleRest {
 		PaginationUtil p = new PaginationUtil(startIndex, count);
 		List<Object> r = new LinkedList<>();
 		int index = 1;
+		int skip = 0;
+		boolean end = false;
 		AsyncList<Role> l = appService.findRoleByJsonQueryAsync(filter);
-		while ( ! l.isDone() && ! l.isCancelled()) {
+		while ( ! end && ! l.isCancelled()) {
 			Thread.sleep(50);
+			end = l.isDone();
 			Iterator<Role> iterator = l.iterator();
-			for (int i = 1 ; i < index && iterator.hasNext(); i++)
+			for (int i = 0 ; i < skip && iterator.hasNext(); i++)
 				iterator.next();
 			
 			while (index < p.getStartIndex() && iterator.hasNext()) {
 				iterator.next();
+				try {
+					iterator.remove();
+				} catch (Exception e) {
+					skip ++;
+				}
 				index ++;
 			}
-			while ( iterator.hasNext() && index < p.getStartIndex() + p.getCount()) {
+			while ( iterator.hasNext() && ( !p.isActive() || index < p.getStartIndex() + p.getCount())) {
 				Role role = iterator.next();
+				r.add( new RoleJSON( role) );
+				try {
+					iterator.remove();
+				} catch (Exception e) {
+					skip ++;
+				}
 				index ++;
 			}
-			if (iterator.hasNext()  && index >= p.getStartIndex() + p.getCount())
+			if (end)
 			{
-				index ++;
-				l.cancel();
+				while (iterator.hasNext()) {
+					index ++;
+					iterator.next();
+					try {
+						iterator.remove();
+					} catch (Exception e) {
+						l.cancel();
+					}
+				}
 			}
 		}
 		if (l.isCancelled() && l.getExceptionToThrow() != null) {
@@ -89,6 +110,12 @@ public class RoleRest {
 		} else {
 			p.setTotalResults(index - 1);
 			SCIMResponseList scimResponseList = new SCIMResponseList(r, p);
+			if (p.isActive())
+				scimResponseList.setItemsPerPage(p.getCount());
+			else
+				scimResponseList.setItemsPerPage(index - 1);
+			scimResponseList.setTotalResults(index-1);
+			scimResponseList.setStartIndex(p.getStartIndex());
 			return SCIMResponseBuilder.responseList(scimResponseList);
 		}
 	}
