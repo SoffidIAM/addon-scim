@@ -54,7 +54,7 @@ public class RoleRest {
 	@Path("")
 	@GET
 	public Response list(@QueryParam("filter") @DefaultValue("") String filter, @QueryParam("attributes") String atts,
-			@QueryParam("startIndex") @DefaultValue("") String startIndex, @QueryParam("count") @DefaultValue("") String count)
+			@QueryParam("startIndex") @DefaultValue("1") String startIndex, @QueryParam("count") @DefaultValue("1000") String count)
 			throws Throwable {
 
 		PaginationUtil p = new PaginationUtil(startIndex, count);
@@ -69,7 +69,7 @@ public class RoleRest {
 			Iterator<Role> iterator = l.iterator();
 			for (int i = 0 ; i < skip && iterator.hasNext(); i++)
 				iterator.next();
-			
+
 			while (index < p.getStartIndex() && iterator.hasNext()) {
 				iterator.next();
 				try {
@@ -81,7 +81,7 @@ public class RoleRest {
 			}
 			while ( iterator.hasNext() && ( !p.isActive() || index < p.getStartIndex() + p.getCount())) {
 				Role role = iterator.next();
-				r.add( new RoleJSON( role) );
+				r.add(toRoleJSON(role));
 				try {
 					iterator.remove();
 				} catch (Exception e) {
@@ -111,7 +111,7 @@ public class RoleRest {
 			p.setTotalResults(index - 1);
 			SCIMResponseList scimResponseList = new SCIMResponseList(r, p);
 			if (p.isActive())
-				scimResponseList.setItemsPerPage(p.getCount());
+				scimResponseList.setItemsPerPage(p.getItemsPerPage());
 			else
 				scimResponseList.setItemsPerPage(index - 1);
 			scimResponseList.setTotalResults(index-1);
@@ -215,25 +215,6 @@ public class RoleRest {
 		} catch (Exception e) {
 			return SCIMResponseBuilder.errorGeneric(e);
 		}
-	}
-
-	private Collection<Object> toRoleJSONList(Collection<Role> roleList, PaginationUtil p) throws InternalErrorException {
-		List<Object> extendedRoleList = new LinkedList<Object>();
-		if (p.isActive()) {
-			p.setTotalResults(roleList.size());
-			Object[] ua = roleList.toArray();
-			while (p.isItem()) {
-				extendedRoleList.add(toRoleJSON((Role) ua[p.getItem()]));
-				p.nextItem();
-			}
-		} else {
-			if (null != roleList && !roleList.isEmpty()) {
-				for (Role account : roleList) {
-					extendedRoleList.add(toRoleJSON(account));
-				}
-			}
-		}
-		return extendedRoleList;
 	}
 
 	private RoleJSON toRoleJSON(Role role) throws InternalErrorException {

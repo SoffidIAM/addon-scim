@@ -2,7 +2,7 @@ package com.soffid.iam.addon.scim.rest;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -31,6 +31,7 @@ import com.soffid.iam.addon.scim.response.SCIMResponseBuilder;
 import com.soffid.iam.addon.scim.response.SCIMResponseList;
 import com.soffid.iam.addon.scim.util.PATCHAnnotation;
 import com.soffid.iam.addon.scim.util.PaginationUtil;
+import com.soffid.iam.api.AsyncList;
 import com.soffid.iam.api.Group;
 import com.soffid.iam.service.ejb.GroupService;
 
@@ -48,11 +49,70 @@ public class GroupREST {
 	@Path("")
 	@GET
 	public Response list(@QueryParam("filter") @DefaultValue("") String filter, @QueryParam("attributes") String atts,
-			@QueryParam("startIndex") @DefaultValue("") String startIndex, @QueryParam("count") @DefaultValue("") String count)
-			throws InternalErrorException {
+			@QueryParam("startIndex") @DefaultValue("1") String startIndex, @QueryParam("count") @DefaultValue("1000") String count)
+			throws Throwable {
 
 		PaginationUtil p = new PaginationUtil(startIndex, count);
-		return SCIMResponseBuilder.responseList(new SCIMResponseList(toExtendedGroupList(groupService.findGroupByJsonQuery(filter), p), p));
+		List<Object> r = new LinkedList<>();
+		int index = 1;
+		int skip = 0;
+		boolean end = false;
+		AsyncList<Group> l = groupService.findGroupByJsonQueryAsync(filter);
+		while ( ! end && ! l.isCancelled()) {
+			Thread.sleep(50);
+			end = l.isDone();
+			Iterator<Group> iterator = l.iterator();
+			for (int i = 0 ; i < skip && iterator.hasNext(); i++)
+				iterator.next();
+
+			while (index < p.getStartIndex() && iterator.hasNext()) {
+				iterator.next();
+				try {
+					iterator.remove();
+				} catch (Exception e) {
+					skip ++;
+				}
+				index ++;
+			}
+			while ( iterator.hasNext() && ( !p.isActive() || index < p.getStartIndex() + p.getCount())) {
+				Group group = iterator.next();
+				r.add(toExtendedGroup(group));
+				try {
+					iterator.remove();
+				} catch (Exception e) {
+					skip ++;
+				}
+				index ++;
+			}
+			if (end)
+			{
+				while (iterator.hasNext()) {
+					index ++;
+					iterator.next();
+					try {
+						iterator.remove();
+					} catch (Exception e) {
+						l.cancel();
+					}
+				}
+			}
+		}
+		if (l.isCancelled() && l.getExceptionToThrow() != null) {
+			if (l.getExceptionToThrow() instanceof Exception)
+				return SCIMResponseBuilder.errorGeneric((Exception) l.getExceptionToThrow());
+			else
+				throw l.getExceptionToThrow();
+		} else {
+			p.setTotalResults(index - 1);
+			SCIMResponseList scimResponseList = new SCIMResponseList(r, p);
+			if (p.isActive())
+				scimResponseList.setItemsPerPage(p.getItemsPerPage());
+			else
+				scimResponseList.setItemsPerPage(index - 1);
+			scimResponseList.setTotalResults(index-1);
+			scimResponseList.setStartIndex(p.getStartIndex());
+			return SCIMResponseBuilder.responseList(scimResponseList);
+		}
 	}
 
 	@Path("/{id}")
@@ -162,25 +222,6 @@ public class GroupREST {
 		} catch (Exception e) {
 			return SCIMResponseBuilder.errorGeneric(e);
 		}
-	}
-
-	private Collection<Object> toExtendedGroupList(Collection<Group> listGroup, PaginationUtil p) throws InternalErrorException {
-		List<Object> listExtendedGroup = new LinkedList<Object>();
-		if (p.isActive()) {
-			p.setTotalResults(listGroup.size());
-			Object[] ua = listGroup.toArray();
-			while (p.isItem()) {
-				listExtendedGroup.add(toExtendedGroup((Group) ua[p.getItem()]));
-				p.nextItem();
-			}
-		} else {
-			if (null != listGroup && !listGroup.isEmpty()) {
-				for (Group group : listGroup) {
-					listExtendedGroup.add(toExtendedGroup(group));
-				}
-			}
-		}
-		return listExtendedGroup;
 	}
 
 	private GroupJSON toExtendedGroup(Group group) throws InternalErrorException {

@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -27,14 +28,15 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import com.soffid.iam.addon.scim.json.SecondaryGroupJSON;
 import com.soffid.iam.addon.scim.json.MetaJSON;
+import com.soffid.iam.addon.scim.json.SecondaryGroupJSON;
 import com.soffid.iam.addon.scim.json.UserAccountJSON;
 import com.soffid.iam.addon.scim.json.UserJSON;
 import com.soffid.iam.addon.scim.response.SCIMResponseBuilder;
 import com.soffid.iam.addon.scim.response.SCIMResponseList;
 import com.soffid.iam.addon.scim.util.PATCHAnnotation;
 import com.soffid.iam.addon.scim.util.PaginationUtil;
+import com.soffid.iam.api.AsyncList;
 import com.soffid.iam.api.GroupUser;
 import com.soffid.iam.api.Password;
 import com.soffid.iam.api.User;
@@ -69,11 +71,70 @@ public class UserREST {
 	@Path("")
 	@GET
 	public Response list(@QueryParam("filter") @DefaultValue("") String filter, @QueryParam("attributes") String atts,
-			@QueryParam("startIndex") @DefaultValue("") String startIndex, @QueryParam("count") @DefaultValue("") String count)
-			throws InternalErrorException {
+			@QueryParam("startIndex") @DefaultValue("1") String startIndex, @QueryParam("count") @DefaultValue("1000") String count)
+			throws Throwable {
 
 		PaginationUtil p = new PaginationUtil(startIndex, count);
-		return SCIMResponseBuilder.responseList(new SCIMResponseList(toExtendedUserList(userService.findUserByJsonQuery(filter), p), p));
+		List<Object> r = new LinkedList<>();
+		int index = 1;
+		int skip = 0;
+		boolean end = false;
+		AsyncList<User> l = userService.findUserByJsonQueryAsync(filter);
+		while ( ! end && ! l.isCancelled()) {
+			Thread.sleep(50);
+			end = l.isDone();
+			Iterator<User> iterator = l.iterator();
+			for (int i = 0 ; i < skip && iterator.hasNext(); i++)
+				iterator.next();
+
+			while (index < p.getStartIndex() && iterator.hasNext()) {
+				iterator.next();
+				try {
+					iterator.remove();
+				} catch (Exception e) {
+					skip ++;
+				}
+				index ++;
+			}
+			while ( iterator.hasNext() && ( !p.isActive() || index < p.getStartIndex() + p.getCount())) {
+				User user = iterator.next();
+				r.add(toExtendedUser(user));
+				try {
+					iterator.remove();
+				} catch (Exception e) {
+					skip ++;
+				}
+				index ++;
+			}
+			if (end)
+			{
+				while (iterator.hasNext()) {
+					index ++;
+					iterator.next();
+					try {
+						iterator.remove();
+					} catch (Exception e) {
+						l.cancel();
+					}
+				}
+			}
+		}
+		if (l.isCancelled() && l.getExceptionToThrow() != null) {
+			if (l.getExceptionToThrow() instanceof Exception)
+				return SCIMResponseBuilder.errorGeneric((Exception) l.getExceptionToThrow());
+			else
+				throw l.getExceptionToThrow();
+		} else {
+			p.setTotalResults(index - 1);
+			SCIMResponseList scimResponseList = new SCIMResponseList(r, p);
+			if (p.isActive())
+				scimResponseList.setItemsPerPage(p.getItemsPerPage());
+			else
+				scimResponseList.setItemsPerPage(index - 1);
+			scimResponseList.setTotalResults(index-1);
+			scimResponseList.setStartIndex(p.getStartIndex());
+			return SCIMResponseBuilder.responseList(scimResponseList);
+		}
 	}
 
 	@Path("")
@@ -272,25 +333,6 @@ public class UserREST {
 		} catch (Exception e) {
 			return SCIMResponseBuilder.errorGeneric(e);
 		}
-	}
-
-	private Collection<Object> toExtendedUserList(Collection<User> userList, PaginationUtil p) throws InternalErrorException {
-		LinkedList<Object> extendedUserList = new LinkedList<Object>();
-		if (p.isActive()) {
-			p.setTotalResults(userList.size());
-			Object[] ua = userList.toArray();
-			while (p.isItem()) {
-				extendedUserList.add(toExtendedUser((User) ua[p.getItem()]));
-				p.nextItem();
-			}
-		} else {
-			if (null != userList && !userList.isEmpty()) {
-				for (User user : userList) {
-					extendedUserList.add(toExtendedUser(user));
-				}
-			}
-		}
-		return extendedUserList;
 	}
 
 	private UserJSON toExtendedUser(User u) throws InternalErrorException {

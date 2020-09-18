@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -36,6 +37,7 @@ import com.soffid.iam.addon.scim.response.SCIMResponseList;
 import com.soffid.iam.addon.scim.util.PATCHAnnotation;
 import com.soffid.iam.addon.scim.util.PaginationUtil;
 import com.soffid.iam.api.Account;
+import com.soffid.iam.api.AsyncList;
 import com.soffid.iam.api.DomainValue;
 import com.soffid.iam.api.Role;
 import com.soffid.iam.api.RoleAccount;
@@ -68,11 +70,70 @@ public class AccountREST {
 	@GET
 	public Response list(@QueryParam("filter") @DefaultValue("") String filter,
 			@QueryParam("attributes") @DefaultValue("") String attributes, @QueryParam("attributes") String atts,
-			@QueryParam("startIndex") @DefaultValue("") String startIndex, @QueryParam("count") @DefaultValue("") String count)
-			throws InternalErrorException {
+			@QueryParam("startIndex") @DefaultValue("1") String startIndex, @QueryParam("count") @DefaultValue("1000") String count)
+			throws Throwable {
 
 		PaginationUtil p = new PaginationUtil(startIndex, count);
-		return SCIMResponseBuilder.responseList(new SCIMResponseList(toExtendedAccountList(accountService.findAccountByJsonQuery(filter), attributes, p), p));
+		List<Object> r = new LinkedList<>();
+		int index = 1;
+		int skip = 0;
+		boolean end = false;
+		AsyncList<Account> l = accountService.findAccountByJsonQueryAsync(filter);
+		while ( ! end && ! l.isCancelled()) {
+			Thread.sleep(50);
+			end = l.isDone();
+			Iterator<Account> iterator = l.iterator();
+			for (int i = 0 ; i < skip && iterator.hasNext(); i++)
+				iterator.next();
+
+			while (index < p.getStartIndex() && iterator.hasNext()) {
+				iterator.next();
+				try {
+					iterator.remove();
+				} catch (Exception e) {
+					skip ++;
+				}
+				index ++;
+			}
+			while ( iterator.hasNext() && ( !p.isActive() || index < p.getStartIndex() + p.getCount())) {
+				Account account = iterator.next();
+				r.add(toExtendedAccount(account, attributes));
+				try {
+					iterator.remove();
+				} catch (Exception e) {
+					skip ++;
+				}
+				index ++;
+			}
+			if (end)
+			{
+				while (iterator.hasNext()) {
+					index ++;
+					iterator.next();
+					try {
+						iterator.remove();
+					} catch (Exception e) {
+						l.cancel();
+					}
+				}
+			}
+		}
+		if (l.isCancelled() && l.getExceptionToThrow() != null) {
+			if (l.getExceptionToThrow() instanceof Exception)
+				return SCIMResponseBuilder.errorGeneric((Exception) l.getExceptionToThrow());
+			else
+				throw l.getExceptionToThrow();
+		} else {
+			p.setTotalResults(index - 1);
+			SCIMResponseList scimResponseList = new SCIMResponseList(r, p);
+			if (p.isActive())
+				scimResponseList.setItemsPerPage(p.getItemsPerPage());
+			else
+				scimResponseList.setItemsPerPage(index - 1);
+			scimResponseList.setTotalResults(index-1);
+			scimResponseList.setStartIndex(p.getStartIndex());
+			return SCIMResponseBuilder.responseList(scimResponseList);
+		}
 	}
 
 	@Path("")
@@ -236,25 +297,6 @@ public class AccountREST {
 			}
 		}
 		return account;
-	}
-
-	private Collection<Object> toExtendedAccountList(Collection<Account> accountList, String attributes, PaginationUtil p) throws InternalErrorException {
-		List<Object> extendedAccountList = new LinkedList<Object>();
-		if (p.isActive()) {
-			p.setTotalResults(accountList.size());
-			Object[] aa = accountList.toArray();
-			while (p.isItem()) {
-				extendedAccountList.add(toExtendedAccount((Account) aa[p.getItem()], attributes));
-				p.nextItem();
-			}
-		} else {
-			if (null != accountList && !accountList.isEmpty()) {
-				for (Account account : accountList) {
-					extendedAccountList.add(toExtendedAccount(account, attributes));
-				}
-			}
-		}
-		return extendedAccountList;
 	}
 
 	private AccountJSON toExtendedAccount(Account acc, String attributes) throws InternalErrorException {
