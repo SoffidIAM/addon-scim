@@ -36,6 +36,7 @@ import com.soffid.iam.addon.scim.response.SCIMResponseList;
 import com.soffid.iam.addon.scim.util.PATCHAnnotation;
 import com.soffid.iam.addon.scim.util.PaginationUtil;
 import com.soffid.iam.api.GroupUser;
+import com.soffid.iam.api.PagedResult;
 import com.soffid.iam.api.Password;
 import com.soffid.iam.api.User;
 import com.soffid.iam.api.UserAccount;
@@ -73,7 +74,9 @@ public class UserREST {
 			throws InternalErrorException {
 
 		PaginationUtil p = new PaginationUtil(startIndex, count);
-		return SCIMResponseBuilder.responseList(new SCIMResponseList(toExtendedUserList(userService.findUserByJsonQuery(filter), p), p));
+		if (p.getCount() <= 0 || p.getCount() > 1000) p.setCount(1000);
+		PagedResult r = userService.findUserByJsonQuery(filter, p.getStartIndex(), p.getCount());
+		return SCIMResponseBuilder.responseList(new SCIMResponseList(toExtendedUserList(r.getResources()), r));
 	}
 
 	@Path("")
@@ -274,20 +277,11 @@ public class UserREST {
 		}
 	}
 
-	private Collection<Object> toExtendedUserList(Collection<User> userList, PaginationUtil p) throws InternalErrorException {
+	private Collection<Object> toExtendedUserList(Collection<User> userList) throws InternalErrorException {
 		LinkedList<Object> extendedUserList = new LinkedList<Object>();
-		if (p.isActive()) {
-			p.setTotalResults(userList.size());
-			Object[] ua = userList.toArray();
-			while (p.isItem()) {
-				extendedUserList.add(toExtendedUser((User) ua[p.getItem()]));
-				p.nextItem();
-			}
-		} else {
-			if (null != userList && !userList.isEmpty()) {
-				for (User user : userList) {
-					extendedUserList.add(toExtendedUser(user));
-				}
+		if (null != userList && !userList.isEmpty()) {
+			for (User user : userList) {
+				extendedUserList.add(toExtendedUser(user));
 			}
 		}
 		return extendedUserList;

@@ -3,6 +3,7 @@ package com.soffid.iam.addon.scim.response;
 import java.util.Collection;
 
 import com.soffid.iam.addon.scim.util.PaginationUtil;
+import com.soffid.iam.api.PagedResult;
 
 public class SCIMResponseList {
 
@@ -32,6 +33,13 @@ public class SCIMResponseList {
 			this.itemsPerPage = this.resources.size();
 			this.startIndex = 1;
 		}
+	}
+
+	public SCIMResponseList(Collection<Object> list, PagedResult p) {
+		this.resources = list;
+		this.totalResults = p.getTotalResults();
+		this.itemsPerPage = p.getItemsPerPage();
+		this.startIndex = p.getStartIndex() + 1;
 	}
 
 	public String[] getSchemas() {

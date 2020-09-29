@@ -36,6 +36,7 @@ import com.soffid.iam.addon.scim.response.SCIMResponseList;
 import com.soffid.iam.addon.scim.util.PATCHAnnotation;
 import com.soffid.iam.addon.scim.util.PaginationUtil;
 import com.soffid.iam.api.AsyncList;
+import com.soffid.iam.api.PagedResult;
 import com.soffid.iam.api.Role;
 import com.soffid.iam.api.RoleGrant;
 import com.soffid.iam.service.ejb.ApplicationService;
@@ -56,68 +57,10 @@ public class RoleRest {
 	public Response list(@QueryParam("filter") @DefaultValue("") String filter, @QueryParam("attributes") String atts,
 			@QueryParam("startIndex") @DefaultValue("") String startIndex, @QueryParam("count") @DefaultValue("") String count)
 			throws Throwable {
-
 		PaginationUtil p = new PaginationUtil(startIndex, count);
-		List<Object> r = new LinkedList<>();
-		int index = 1;
-		int skip = 0;
-		boolean end = false;
-		AsyncList<Role> l = appService.findRoleByJsonQueryAsync(filter);
-		while ( ! end && ! l.isCancelled()) {
-			Thread.sleep(50);
-			end = l.isDone();
-			Iterator<Role> iterator = l.iterator();
-			for (int i = 0 ; i < skip && iterator.hasNext(); i++)
-				iterator.next();
-			
-			while (index < p.getStartIndex() && iterator.hasNext()) {
-				iterator.next();
-				try {
-					iterator.remove();
-				} catch (Exception e) {
-					skip ++;
-				}
-				index ++;
-			}
-			while ( iterator.hasNext() && ( !p.isActive() || index < p.getStartIndex() + p.getCount())) {
-				Role role = iterator.next();
-				r.add( new RoleJSON( role) );
-				try {
-					iterator.remove();
-				} catch (Exception e) {
-					skip ++;
-				}
-				index ++;
-			}
-			if (end)
-			{
-				while (iterator.hasNext()) {
-					index ++;
-					iterator.next();
-					try {
-						iterator.remove();
-					} catch (Exception e) {
-						l.cancel();
-					}
-				}
-			}
-		}
-		if (l.isCancelled() && l.getExceptionToThrow() != null) {
-			if (l.getExceptionToThrow() instanceof Exception)
-				return SCIMResponseBuilder.errorGeneric((Exception) l.getExceptionToThrow());
-			else
-				throw l.getExceptionToThrow();
-		} else {
-			p.setTotalResults(index - 1);
-			SCIMResponseList scimResponseList = new SCIMResponseList(r, p);
-			if (p.isActive())
-				scimResponseList.setItemsPerPage(p.getCount());
-			else
-				scimResponseList.setItemsPerPage(index - 1);
-			scimResponseList.setTotalResults(index-1);
-			scimResponseList.setStartIndex(p.getStartIndex());
-			return SCIMResponseBuilder.responseList(scimResponseList);
-		}
+		if (p.getCount() <= 0 || p.getCount() > 1000) p.setCount(1000);
+		PagedResult r = appService.findRoleByJsonQuery(filter, p.getStartIndex(), p.getCount());
+		return SCIMResponseBuilder.responseList(new SCIMResponseList(toRoleJSONList(r.getResources()), r));
 	}
 
 	@Path("")
@@ -217,20 +160,11 @@ public class RoleRest {
 		}
 	}
 
-	private Collection<Object> toRoleJSONList(Collection<Role> roleList, PaginationUtil p) throws InternalErrorException {
+	private Collection<Object> toRoleJSONList(Collection<Role> roleList) throws InternalErrorException {
 		List<Object> extendedRoleList = new LinkedList<Object>();
-		if (p.isActive()) {
-			p.setTotalResults(roleList.size());
-			Object[] ua = roleList.toArray();
-			while (p.isItem()) {
-				extendedRoleList.add(toRoleJSON((Role) ua[p.getItem()]));
-				p.nextItem();
-			}
-		} else {
-			if (null != roleList && !roleList.isEmpty()) {
-				for (Role account : roleList) {
-					extendedRoleList.add(toRoleJSON(account));
-				}
+		if (null != roleList && !roleList.isEmpty()) {
+			for (Role account : roleList) {
+				extendedRoleList.add(toRoleJSON(account));
 			}
 		}
 		return extendedRoleList;

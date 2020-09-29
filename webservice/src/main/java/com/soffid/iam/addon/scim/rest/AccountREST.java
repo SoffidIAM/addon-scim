@@ -37,6 +37,7 @@ import com.soffid.iam.addon.scim.util.PATCHAnnotation;
 import com.soffid.iam.addon.scim.util.PaginationUtil;
 import com.soffid.iam.api.Account;
 import com.soffid.iam.api.DomainValue;
+import com.soffid.iam.api.PagedResult;
 import com.soffid.iam.api.Role;
 import com.soffid.iam.api.RoleAccount;
 import com.soffid.iam.api.RoleGrant;
@@ -72,7 +73,9 @@ public class AccountREST {
 			throws InternalErrorException {
 
 		PaginationUtil p = new PaginationUtil(startIndex, count);
-		return SCIMResponseBuilder.responseList(new SCIMResponseList(toExtendedAccountList(accountService.findAccountByJsonQuery(filter), attributes, p), p));
+		if (p.getCount() <= 0 || p.getCount() > 1000) p.setCount(1000);
+		PagedResult r = accountService.findAccountByJsonQuery(filter, p.getStartIndex(), p.getCount());
+		return SCIMResponseBuilder.responseList(new SCIMResponseList(toExtendedAccountList(r.getResources(), attributes), r));
 	}
 
 	@Path("")
@@ -238,20 +241,11 @@ public class AccountREST {
 		return account;
 	}
 
-	private Collection<Object> toExtendedAccountList(Collection<Account> accountList, String attributes, PaginationUtil p) throws InternalErrorException {
+	private Collection<Object> toExtendedAccountList(Collection<Account> accountList, String attributes) throws InternalErrorException {
 		List<Object> extendedAccountList = new LinkedList<Object>();
-		if (p.isActive()) {
-			p.setTotalResults(accountList.size());
-			Object[] aa = accountList.toArray();
-			while (p.isItem()) {
-				extendedAccountList.add(toExtendedAccount((Account) aa[p.getItem()], attributes));
-				p.nextItem();
-			}
-		} else {
-			if (null != accountList && !accountList.isEmpty()) {
-				for (Account account : accountList) {
-					extendedAccountList.add(toExtendedAccount(account, attributes));
-				}
+		if (null != accountList && !accountList.isEmpty()) {
+			for (Account account : accountList) {
+				extendedAccountList.add(toExtendedAccount(account, attributes));
 			}
 		}
 		return extendedAccountList;

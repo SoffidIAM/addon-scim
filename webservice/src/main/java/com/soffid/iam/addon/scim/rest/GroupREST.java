@@ -32,6 +32,7 @@ import com.soffid.iam.addon.scim.response.SCIMResponseList;
 import com.soffid.iam.addon.scim.util.PATCHAnnotation;
 import com.soffid.iam.addon.scim.util.PaginationUtil;
 import com.soffid.iam.api.Group;
+import com.soffid.iam.api.PagedResult;
 import com.soffid.iam.service.ejb.GroupService;
 
 import es.caib.seycon.ng.exception.InternalErrorException;
@@ -50,9 +51,10 @@ public class GroupREST {
 	public Response list(@QueryParam("filter") @DefaultValue("") String filter, @QueryParam("attributes") String atts,
 			@QueryParam("startIndex") @DefaultValue("") String startIndex, @QueryParam("count") @DefaultValue("") String count)
 			throws InternalErrorException {
-
 		PaginationUtil p = new PaginationUtil(startIndex, count);
-		return SCIMResponseBuilder.responseList(new SCIMResponseList(toExtendedGroupList(groupService.findGroupByJsonQuery(filter), p), p));
+		if (p.getCount() <= 0 || p.getCount() > 1000) p.setCount(1000);
+		PagedResult r = groupService.findGroupByJsonQuery(filter, p.getStartIndex(), p.getCount());
+		return SCIMResponseBuilder.responseList(new SCIMResponseList(toExtendedGroupList(r.getResources()), r));
 	}
 
 	@Path("/{id}")
@@ -164,20 +166,11 @@ public class GroupREST {
 		}
 	}
 
-	private Collection<Object> toExtendedGroupList(Collection<Group> listGroup, PaginationUtil p) throws InternalErrorException {
+	private Collection<Object> toExtendedGroupList(Collection<Group> listGroup) throws InternalErrorException {
 		List<Object> listExtendedGroup = new LinkedList<Object>();
-		if (p.isActive()) {
-			p.setTotalResults(listGroup.size());
-			Object[] ua = listGroup.toArray();
-			while (p.isItem()) {
-				listExtendedGroup.add(toExtendedGroup((Group) ua[p.getItem()]));
-				p.nextItem();
-			}
-		} else {
-			if (null != listGroup && !listGroup.isEmpty()) {
-				for (Group group : listGroup) {
-					listExtendedGroup.add(toExtendedGroup(group));
-				}
+		if (null != listGroup && !listGroup.isEmpty()) {
+			for (Group group : listGroup) {
+				listExtendedGroup.add(toExtendedGroup(group));
 			}
 		}
 		return listExtendedGroup;

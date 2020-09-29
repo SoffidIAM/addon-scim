@@ -15,11 +15,11 @@ public class PaginationUtil {
 	public PaginationUtil(String startIndex, String count) {
 		super();
 		if (!startIndex.trim().isEmpty())
-			this.startIndex = Integer.parseInt(startIndex);
+			this.startIndex = Integer.parseInt(startIndex) - 1;
 		if (!count.trim().isEmpty())
 			this.count = Integer.parseInt(count);
-		if (this.startIndex<1)
-			this.startIndex = 1;
+		if (this.startIndex < 0)
+			this.startIndex = 0;
 		if (this.count>0)
 			active = true;
 	}
@@ -67,5 +67,9 @@ public class PaginationUtil {
 
 	public void nextItem() {
 		this.index++;
+	}
+
+	public void setCount(int i) {
+		this.count = i;
 	}
 }
