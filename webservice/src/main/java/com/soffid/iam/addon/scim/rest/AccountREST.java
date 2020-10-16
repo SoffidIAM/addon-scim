@@ -90,6 +90,7 @@ public class AccountREST {
 			Account newAccount = accountService.createAccount(account);
 			if (newAccount != null) {
 				updateAttributes(account, newAccount, true);
+				updateRoles(account, newAccount);
 				AccountJSON ea = toExtendedAccount(newAccount, null);
 				return SCIMResponseBuilder.responseOk(ea, new URI(ea.getMeta().getLocation()));
 			} else
