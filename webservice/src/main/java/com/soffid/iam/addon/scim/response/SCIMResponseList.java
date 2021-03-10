@@ -38,7 +38,7 @@ public class SCIMResponseList {
 	public SCIMResponseList(Collection<Object> list, PagedResult p) {
 		this.resources = list;
 		this.totalResults = p.getTotalResults();
-		this.itemsPerPage = p.getItemsPerPage();
+		this.itemsPerPage = list.size();
 		this.startIndex = p.getStartIndex() + 1;
 	}
 

@@ -36,6 +36,7 @@ import com.soffid.iam.addon.scim.response.SCIMResponseList;
 import com.soffid.iam.addon.scim.util.PATCHAnnotation;
 import com.soffid.iam.addon.scim.util.PaginationUtil;
 import com.soffid.iam.api.Account;
+import com.soffid.iam.api.AccountStatus;
 import com.soffid.iam.api.DomainValue;
 import com.soffid.iam.api.PagedResult;
 import com.soffid.iam.api.Role;
@@ -90,6 +91,7 @@ public class AccountREST {
 			Account newAccount = accountService.createAccount(account);
 			if (newAccount != null) {
 				updateAttributes(account, newAccount, true);
+				updateRoles(account, newAccount);
 				AccountJSON ea = toExtendedAccount(newAccount, null);
 				return SCIMResponseBuilder.responseOk(ea, new URI(ea.getMeta().getLocation()));
 			} else
@@ -147,7 +149,11 @@ public class AccountREST {
 			account.setAccessLevel(extendedAccount.getAccessLevel());
 			account.setAttributes(extendedAccount.getAttributes());
 			account.setDescription(extendedAccount.getDescription());
-			account.setDisabled(extendedAccount.isDisabled());
+			if (extendedAccount.isDisabled()) {
+				account.setStatus(AccountStatus.DISABLED);
+			} else  {
+				account.setStatus(AccountStatus.ACTIVE);
+			}
 			account.setGrantedGroups(extendedAccount.getGrantedGroups());
 			account.setGrantedRoles(extendedAccount.getGrantedRoles());
 			account.setGrantedUsers(extendedAccount.getGrantedUsers());
@@ -188,7 +194,13 @@ public class AccountREST {
 
 			if (extendedAccount.getAccessLevel() != null) account.setAccessLevel(extendedAccount.getAccessLevel());
 			if (extendedAccount.getDescription() != null) account.setDescription(extendedAccount.getDescription());
-			if (extendedAccount.isDisabled() != account.isDisabled()) account.setDisabled(extendedAccount.isDisabled());
+			if (extendedAccount.isDisabled() != account.isDisabled()) {
+				if (extendedAccount.isDisabled()) {
+					account.setStatus(AccountStatus.DISABLED);
+				} else  {
+					account.setStatus(AccountStatus.ACTIVE);
+				}
+			}
 			if (extendedAccount.getGrantedGroups() != null) account.setGrantedGroups(extendedAccount.getGrantedGroups());
 			if (extendedAccount.getGrantedRoles() != null) account.setGrantedRoles(extendedAccount.getGrantedRoles());
 			if (extendedAccount.getGrantedUsers() != null) account.setGrantedUsers(extendedAccount.getGrantedUsers());
