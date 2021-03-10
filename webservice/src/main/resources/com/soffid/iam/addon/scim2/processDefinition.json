@@ -1,0 +1,92 @@
+[
+        {
+            "uniqueness": "none",
+            "name": "version",
+            "mutability": "readOnly",
+            "type": "integer",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "tag",
+            "mutability": "readOnly",
+            "type": "string",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "name",
+            "mutability": "readOnly",
+            "type": "string",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "server",
+            "name": "id",
+            "mutability": "readOnly",
+            "type": "integer",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "enabled",
+            "mutability": "readOnly",
+            "type": "boolean",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "appliesTo",
+            "mutability": "readOnly",
+            "type": "string",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "type",
+            "mutability": "readOnly",
+            "type": "complex",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "deployed",
+            "mutability": "readOnly",
+            "type": "complex",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "author",
+            "mutability": "readOnly",
+            "type": "string",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        }
+    ]

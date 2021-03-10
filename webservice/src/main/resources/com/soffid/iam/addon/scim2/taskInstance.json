@@ -1,0 +1,222 @@
+[
+	{
+            "uniqueness": "server",
+            "name": "id",
+            "mutability": "readOnly",
+            "type": "integer",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "processName",
+            "mutability": "readOnly",
+            "type": "string",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "server",
+            "name": "processId",
+            "mutability": "readOnly",
+            "type": "integer",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "processDefinition",
+            "mutability": "readOnly",
+            "type": "integer",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "dummyTask",
+            "mutability": "readOnly",
+            "type": "boolean",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "name",
+            "mutability": "readOnly",
+            "type": "string",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "description",
+            "mutability": "readOnly",
+            "type": "string",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "actorId",
+            "mutability": "readWrite",
+            "type": "string",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "create",
+            "mutability": "readOnly",
+            "type": "complex",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "start",
+            "mutability": "readOnly",
+            "type": "complex",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "end",
+            "mutability": "readOnly",
+            "type": "complex",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "dueDate",
+            "mutability": "readOnly",
+            "type": "complex",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "priority",
+            "mutability": "readOnly",
+            "type": "integer",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "cancelled",
+            "mutability": "readOnly",
+            "type": "boolean",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "open",
+            "mutability": "readOnly",
+            "type": "boolean",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "signalling",
+            "mutability": "readOnly",
+            "type": "boolean",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "blocking",
+            "mutability": "readOnly",
+            "type": "boolean",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "swimlane",
+            "mutability": "readOnly",
+            "type": "string",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "pooledActors",
+            "mutability": "readOnly",
+            "type": "string",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": true,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "variables",
+            "mutability": "readWrite",
+            "type": "complex",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "transitions",
+            "mutability": "readOnly",
+            "type": "string",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": true,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "transition",
+            "mutability": "writeOnly",
+            "type": "string",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": true,
+            "required": false
+        }
+]

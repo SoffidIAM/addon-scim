@@ -5,7 +5,11 @@ import java.net.URI;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.logging.LogFactory;
+
 import com.soffid.iam.addon.scim.rest.Messages;
+
+import es.caib.seycon.ng.exception.InternalErrorException;
 
 public class SCIMResponseBuilder {
 
@@ -20,7 +24,7 @@ public class SCIMResponseBuilder {
 	 * Generic error or unmanaged exception
 	 */
 	public static Response errorGeneric(Exception e) {
-		return Response.serverError().entity(new SCIMResponseError(getOriginalMessage(e))).build();
+		return Response.status(Status.BAD_REQUEST).entity(new SCIMResponseError(getOriginalMessage(e))).build();
 	}
 
 	/**
@@ -65,8 +69,8 @@ public class SCIMResponseBuilder {
 		if (e == null) return "";
 		String message = "";
 		Throwable throwable = e.getCause();
-		if (throwable==null)
-			return e.getMessage();
+		if (throwable==null) 
+			return (e instanceof InternalErrorException || e.getClass() == Exception.class)? e.getMessage(): e.toString();
 		while (throwable != null) {
 			message = throwable.getMessage();
 			if (message == null)

@@ -1,0 +1,43 @@
+[
+  { "uniqueness": "none",
+    "name": "password",
+    "description": "Change current user password",
+    "mutability": "writeOnly",
+    "type": "complex",
+    "caseExact": true,
+    "multiValued": true,
+    "required": false,
+    "subattributes": [
+		  { 
+		    "uniqueness": "none",
+		    "name": "domain",
+		    "description": "Password domain to be changed. By default, the DEFAULT domain is changed",
+		    "mutability": "writeOnly",
+		    "type": "string",
+		    "caseExact": true,
+		    "multiValued": false,
+		    "required": false
+		  },
+		  { 
+		    "uniqueness": "none",
+		    "name": "value",
+		    "description": "The password itself, in  clear text",
+		    "mutability": "writeOnly",
+		    "type": "string",
+		    "caseExact": true,
+		    "multiValued": false,
+		    "required": true
+		  },
+		  { 
+		    "uniqueness": "none",
+		    "description": "If not set to false, the user will be prompted to change it on next logon",
+		    "name": "expired",
+		    "mutability": "readWrite",
+		    "type": "boolean",
+		    "caseExact": true,
+		    "multiValued": false,
+		    "required": false
+		  }
+    ]
+   }
+]

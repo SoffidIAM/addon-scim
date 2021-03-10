@@ -1,0 +1,42 @@
+[
+  { "uniqueness": "none",
+    "name": "password",
+    "description": "Change current account password",
+    "mutability": "writeOnly",
+    "type": "complex",
+    "caseExact": true,
+    "multiValued": false,
+    "required": false,
+    "subattributes": [
+		  { 
+		    "uniqueness": "none",
+		    "name": "value",
+		    "description": "The password itself, in  clear text",
+		    "mutability": "writeOnly",
+		    "type": "string",
+		    "caseExact": true,
+		    "multiValued": false,
+		    "required": true
+		  },
+		  { 
+		    "uniqueness": "none",
+		    "name": "expired",
+		    "mutability": "readWrite",
+		    "type": "boolean",
+		    "caseExact": true,
+		    "multiValued": false,
+		    "required": false,
+		    "description": "If not set to false, the user will be prompted to change it on next logon"
+		  }
+    ]
+   },
+  { 
+    "uniqueness": "none",
+    "name": "attributes",
+    "mutability": "readWrite",
+    "type": "complex",
+    "caseExact": true,
+    "multiValued": false,
+    "required": false
+  }
+]

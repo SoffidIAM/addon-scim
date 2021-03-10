@@ -1,0 +1,102 @@
+[
+        {
+            "uniqueness": "server",
+            "name": "id",
+            "mutability": "readOnly",
+            "type": "integer",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "description",
+            "mutability": "readOnly",
+            "type": "string",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "start",
+            "mutability": "readOnly",
+            "type": "complex",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "end",
+            "mutability": "readOnly",
+            "type": "complex",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "variables",
+            "mutability": "readWrite",
+            "type": "complex",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "currentTask",
+            "mutability": "readOnly",
+            "type": "string",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "comments",
+            "mutability": "readWrite",
+            "type": "complex",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": true,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "processDefinition",
+            "mutability": "immutable",
+            "type": "integer",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "dummyProcess",
+            "mutability": "readOnly",
+            "type": "boolean",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": false,
+            "required": false
+        },
+        {
+            "uniqueness": "none",
+            "name": "transition",
+            "mutability": "writeOnly",
+            "type": "string",
+            "caseExact": true,
+            "returned": "default",
+            "multiValued": true,
+            "required": false
+        }
+    ]

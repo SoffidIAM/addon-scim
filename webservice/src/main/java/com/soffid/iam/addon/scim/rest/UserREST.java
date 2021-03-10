@@ -88,6 +88,8 @@ public class UserREST {
 				updateAccounts(user, newUser);
 				updateAttributes(user, newUser, true);
 				updateSecondaryGroups(user, newUser);
+				if (user.getPassword() != null) 
+					userService.setTemporaryPassword(user.getUserName(), "DEFAULT", new Password(user.getPassword())); //$NON-NLS-1$
 				UserJSON eu = toExtendedUser(newUser);
 				return SCIMResponseBuilder.responseOk(eu, new URI(eu.getMeta().getLocation()));
 			} else
@@ -189,7 +191,6 @@ public class UserREST {
 
 			user2.setActive(user.getActive());
 			user2.setComments(user.getComments());
-			user2.setConsoleProperties(user.getConsoleProperties());
 			user2.setCreatedByUser(user.getCreatedByUser());
 			user2.setCreatedDate(user.getCreatedDate());
 			user2.setFirstName(user.getFirstName());
@@ -206,9 +207,6 @@ public class UserREST {
 			user2.setModifiedByUser(user.getModifiedByUser());
 			user2.setModifiedDate(user.getModifiedDate());
 			user2.setMultiSession(user.getMultiSession());
-			user2.setNationalID(user.getNationalID());
-			user2.setPasswordMaxAge(user.getPasswordMaxAge());
-			user2.setPhoneNumber(user.getPhoneNumber());
 			user2.setPrimaryGroup(user.getPrimaryGroup());
 			user2.setPrimaryGroupDescription(user.getPrimaryGroupDescription());
 			user2.setProfileServer(user.getProfileServer());
@@ -216,7 +214,7 @@ public class UserREST {
 			user2.setUserName(user.getUserName());
 			user2.setUserType(user.getUserType());
 			userService.update(user2);
-			if (user.getPassword() != null) userService.changePassword(user.getUserName(), "DEFAULT", new Password(user.getPassword())); //$NON-NLS-1$
+			if (user.getPassword() != null) userService.setTemporaryPassword(user.getUserName(), "DEFAULT", new Password(user.getPassword())); //$NON-NLS-1$
 			updateAttributes(user, user2, true);
 			updateAccounts(user, user2);
 			updateSecondaryGroups(user, user2);
@@ -238,7 +236,6 @@ public class UserREST {
 
 			if (user.getActive() != null) user2.setActive(user.getActive());
 			if (user.getComments() != null) user2.setComments(user.getComments());
-			if (user.getConsoleProperties() != null) user2.setConsoleProperties(user.getConsoleProperties());
 			if (user.getCreatedByUser() != null) user2.setCreatedByUser(user.getCreatedByUser());
 			if (user.getCreatedDate() != null) user2.setCreatedDate(user.getCreatedDate());
 			if (user.getFirstName() != null) user2.setFirstName(user.getFirstName());
@@ -254,9 +251,6 @@ public class UserREST {
 			if (user.getModifiedByUser() != null) user2.setModifiedByUser(user.getModifiedByUser());
 			if (user.getModifiedDate() != null) user2.setModifiedDate(user.getModifiedDate());
 			if (user.getMultiSession() != null) user2.setMultiSession(user.getMultiSession());
-			if (user.getNationalID() != null) user2.setNationalID(user.getNationalID());
-			if (user.getPasswordMaxAge() != null) user2.setPasswordMaxAge(user.getPasswordMaxAge());
-			if (user.getPhoneNumber() != null) user2.setPhoneNumber(user.getPhoneNumber());
 			if (user.getPrimaryGroup() != null) user2.setPrimaryGroup(user.getPrimaryGroup());
 			if (user.getPrimaryGroupDescription() != null) user2.setPrimaryGroupDescription(user.getPrimaryGroupDescription());
 			if (user.getProfileServer() != null) user2.setProfileServer(user.getProfileServer());
@@ -265,7 +259,7 @@ public class UserREST {
 			if (user.getUserType() != null) user2.setUserType(user.getUserType());
 			userService.update(user2);
 
-			if (user.getPassword() != null) userService.changePassword(user2.getUserName(), "DEFAULT", new Password(user.getPassword())); //$NON-NLS-1$
+			if (user.getPassword() != null) userService.setTemporaryPassword(user2.getUserName(), "DEFAULT", new Password(user.getPassword())); //$NON-NLS-1$
 			if (!user.getAccounts().isEmpty()) updateAccounts(user, user2);
 			if (!user.getAttributes().isEmpty()) updateAttributes(user, user2, false);
 			if (user.getSecondaryGroups() != null && ! user.getSecondaryGroups().isEmpty())

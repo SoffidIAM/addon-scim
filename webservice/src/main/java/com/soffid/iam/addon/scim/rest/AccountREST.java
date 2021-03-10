@@ -332,8 +332,8 @@ public class AccountREST {
 					ra.setRoleName(role.getName());
 					ra.setInformationSystemName(role.getInformationSystemName());
 					ra.setDomainValue(new DomainValue());
-					ra.getDomainValue().setDomainName(role.getDomain().getName());
-					ra.getDomainValue().setExternalCodeDomain(role.getDomain().getExternalCode());
+					ra.getDomainValue().setDomainName(role.getDomain());
+					ra.getDomainValue().setExternalCodeDomain(role.getInformationSystemName());
 					if (ua2.getDomainValue() != null)
 					{
 						ra.getDomainValue().setValue(ua2.getDomainValue());

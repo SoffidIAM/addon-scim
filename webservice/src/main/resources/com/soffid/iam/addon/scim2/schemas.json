@@ -1,0 +1,67 @@
+{
+  "Account": {
+    "class": "com.soffid.iam.api.Account",
+    "additionalResource":"com/soffid/iam/addon/scim2/account.json"
+  },
+  "Application": {
+    "class": "com.soffid.iam.api.Application"
+  },
+  "CustomObject": {
+    "class": "com.soffid.iam.api.CustomObject"
+  },
+  "DomainValue": {
+    "class": "com.soffid.iam.api.DomainValue"
+  },
+  "Group": {
+    "class": "com.soffid.iam.api.Group"
+  },
+  "GroupUser": {
+    "class": "com.soffid.iam.api.GroupUser"
+  },
+  "Host": {
+    "class": "com.soffid.iam.api.Host"
+  },
+  "MailDomain": {
+    "class": "com.soffid.iam.api.MailDomain"
+  },
+  "MailList": {
+    "class": "com.soffid.iam.api.MailList"
+  },
+  "Network": {
+    "class": "com.soffid.iam.api.Network"
+  },
+  "OUType": {
+    "class": "com.soffid.iam.api.OUType"
+  },
+  "ProcessDefinition": {
+    "class": "com.soffid.iam.bpm.api.ProcessDefinition",
+    "resource": "com/soffid/iam/addon/scim2/processDefinition.json"
+  },
+  "ProcessInstance": {
+    "class": "com.soffid.iam.bpm.api.ProcessInstance",
+    "resource": "com/soffid/iam/addon/scim2/processInstance.json"
+  },
+  "RoleAccount": {
+    "class": "com.soffid.iam.api.RoleAccount"
+  },
+  "Role": {
+    "class": "com.soffid.iam.api.Role"
+  },
+  "System": {
+    "class": "com.soffid.iam.api.System"
+  },
+  "TaskInstance": {
+    "class": "com.soffid.iam.bpm.api.TaskInstance",
+    "resource": "com/soffid/iam/addon/scim2/taskInstance.json"
+  },
+  "User": {
+    "class": "com.soffid.iam.api.User",
+    "additionalResource":"com/soffid/iam/addon/scim2/user.json"
+  },
+  "UserType": {
+    "class": "com.soffid.iam.api.UserType"
+  },
+  "VaultFolder": {
+    "class": "com.soffid.iam.api.VaultFolder"
+  }
+}

@@ -17,18 +17,18 @@ public class RoleGrantJSON extends RoleGrant {
 		super();
 	}
 
-	public RoleGrantJSON(Long id, Long roleId, String roleName, String system, String informationSystem,
-			boolean hasDomain, boolean enabled) {
-		super(id, roleId, roleName, system, informationSystem, hasDomain, enabled);
+	public RoleGrantJSON(Long id, Long roleId, String roleName, String roleDescription, String system,
+			String informationSystem, boolean hasDomain, String domainValue, String ownerAccountName,
+			String ownerSystem, String ownerGroup, Long ownerRole, String ownerRolDomainValue, String ownerRoleName,
+			String ownerRoleDescription, String user, Date startDate, Date endDate, boolean enabled, String holderGroup,
+			RoleDependencyStatus status, Boolean mandatory) {
+		super(id, roleId, roleName, roleDescription, system, informationSystem, hasDomain, domainValue, ownerAccountName,
+				ownerSystem, ownerGroup, ownerRole, ownerRolDomainValue, ownerRoleName, ownerRoleDescription, user, startDate,
+				endDate, enabled, holderGroup, status, mandatory);
 	}
 
-	public RoleGrantJSON(Long id, Long roleId, String roleName, String system, String informationSystem,
-			boolean hasDomain, String domainValue, String ownerAccountName, String ownerSystem, String ownerGroup,
-			Long ownerRole, String ownerRolDomainValue, String ownerRoleName, String user, Date startDate, Date endDate,
-			boolean enabled, String holderGroup, RoleDependencyStatus status, Boolean mandatory) {
-		super(id, roleId, roleName, system, informationSystem, hasDomain, domainValue, ownerAccountName, ownerSystem,
-				ownerGroup, ownerRole, ownerRolDomainValue, ownerRoleName, user, startDate, endDate, enabled, holderGroup,
-				status, mandatory);
+	public RoleGrantJSON(Long roleId, String roleName, String system, boolean hasDomain, boolean enabled) {
+		super(roleId, roleName, system, hasDomain, enabled);
 	}
 
 	public RoleGrantJSON(RoleGrant otherBean) {
