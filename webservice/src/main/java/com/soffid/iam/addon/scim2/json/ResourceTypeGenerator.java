@@ -216,10 +216,11 @@ public class ResourceTypeGenerator {
 						}
 					}
 				}
-				a.put("mutability", att2.getBoolean("readonly") ? "readOnly": "readWrite");
+				a.put("mutability", att2.optBoolean("readonly") ? "readOnly": "readWrite");
 				a.put("returned", "default");
 				a.put("uniqueness", "none");
-				a.put("multiValued", att2.getBoolean("multivalue"));
+				a.put("multiValued", att2.optBoolean("multivalue"));
+				atts.put(a);
 			}
 			// Add id
 			JSONObject b = new JSONObject();
