@@ -31,7 +31,7 @@ public class ServiceProviderRest {
 			"{\n"
 			+ "    \"schemas\":\n"
 			+ "      [\"urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig\"],\n"
-			+ "    \"documentationUri\": \"https://bookstack.soffid.com/book/scim\",\n"
+			+ "    \"documentationUri\": \"https://bookstack.soffid.com/books/scim\",\n"
 			+ "    \"patch\": {\n"
 			+ "      \"supported\":true\n"
 			+ "    },\n"
