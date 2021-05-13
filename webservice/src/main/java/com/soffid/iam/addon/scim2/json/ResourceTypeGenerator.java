@@ -69,7 +69,7 @@ public class ResourceTypeGenerator {
 		d.put("name", key);
 		d.put("id", key);
 		d.put("schema", "urn:soffid:"+jsonObject.get("class"));
-		d.put("endpoint", "/"+key);
+		d.put("endpoint", baseUrl+key);
 		d.getJSONObject("meta").put("location", baseUrl+"ResourceTypes/"+key);
 		d.getJSONObject("meta").put("resourceType", "ResourceType");
 		return d;
@@ -235,7 +235,9 @@ public class ResourceTypeGenerator {
 			if (resource != null && ! resource.trim().isEmpty()) {
 				JSONArray atts3 = loadArray(resource);
 				for (int i = 0; i < atts3.length(); i++) 
+				{
 					atts.put(atts3.getJSONObject(i));
+				}
 			}
 			return true;
 		} catch (IOException e) {
