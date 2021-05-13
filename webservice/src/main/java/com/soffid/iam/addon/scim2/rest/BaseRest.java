@@ -34,6 +34,8 @@ import com.soffid.iam.addon.scim2.json.JSONBuilder;
 import com.soffid.iam.addon.scim2.json.JSONParser;
 import com.soffid.iam.api.CrudHandler;
 import com.soffid.iam.api.PagedResult;
+import com.soffid.iam.common.security.SoffidPrincipal;
+import com.soffid.iam.utils.Security;
 
 import es.caib.seycon.ng.exception.InternalErrorException;
 public class BaseRest<E> {
@@ -65,6 +67,7 @@ public class BaseRest<E> {
 			b.setAttributes((atts+", meta, schemas").split(" *, *"));
 		if (excludedAtts != null)
 			b.setExcludedAttributes(excludedAtts.split(" *, *"));
+		Security.nestedLogin( (SoffidPrincipal) ((HttpServletRequest) request).getUserPrincipal());
 		try {
 			PaginationUtil p = new PaginationUtil(startIndex, count);
 			if (p.getCount() <= 0) p.setCount(100);
@@ -124,8 +127,12 @@ public class BaseRest<E> {
 		} catch (Exception e) {
 			log.warn("Error processing SCIM Request "+request.getRequestURL(), e);
 			return SCIMResponseBuilder.errorGeneric(e);
+		} finally {
+			Security.nestedLogoff();
 		}
+		
 	}
+	
 
 	@Path("/.search")
 	@POST
@@ -146,12 +153,13 @@ public class BaseRest<E> {
 	@POST
 	public Response create(String data, @Context HttpServletRequest request) throws URISyntaxException {
 		JSONBuilder b = new JSONBuilder(request);
+		Security.nestedLogin( (SoffidPrincipal) ((HttpServletRequest) request).getUserPrincipal());
 		try {
 			JSONObject o = new JSONObject(data);
 			E obj = loadObject(o);
 			E newObj = create(o, obj);
 			if (newObj != null) {
-				JSONObject jsonObject = b.build(obj);
+				JSONObject jsonObject = b.build(newObj);
 				String uri = jsonObject.getJSONObject("meta").getString("location");
 				return Response
 						.status(201)
@@ -163,6 +171,8 @@ public class BaseRest<E> {
 		} catch (Exception e) {
 			log.warn("Error processing SCIM Request "+request.getRequestURL(), e);
 			return SCIMResponseBuilder.errorGeneric(e);
+		} finally {
+			Security.nestedLogoff();
 		}
 	}
 
@@ -199,6 +209,7 @@ public class BaseRest<E> {
 			b.setAttributes((atts+", meta, schemas").split(" *, *"));
 		if (excludedAtts != null)
 			b.setExcludedAttributes(excludedAtts.split(" *, *"));
+		Security.nestedLogin( (SoffidPrincipal) ((HttpServletRequest) request).getUserPrincipal());
 		try {
 			PagedResult<E> objs = getCrud().read(null, "id eq \""+id+"\"", null, null);
 			if ( objs.getResources().isEmpty()) {
@@ -215,12 +226,15 @@ public class BaseRest<E> {
 		} catch (Exception e) {
 			log.warn("Error processing SCIM Request "+request.getRequestURL(), e);
 			return SCIMResponseBuilder.errorGeneric(e);
+		} finally {
+			Security.nestedLogoff();
 		}
 	}
 
 	@Path("/{id}")
 	@DELETE
 	public Response delete(@PathParam("id") long id, @Context HttpServletRequest request) {
+		Security.nestedLogin( (SoffidPrincipal) ((HttpServletRequest) request).getUserPrincipal());
 		try {
 			PagedResult<E> objs = getCrud().read(null, "id eq \""+id+"\"", null, null);
 			if ( objs.getResources().isEmpty()) {
@@ -233,12 +247,15 @@ public class BaseRest<E> {
 		} catch (Exception e) {
 			log.warn("Error processing SCIM Request "+request.getRequestURL(), e);
 			return SCIMResponseBuilder.errorGeneric(e);
+		} finally {
+			Security.nestedLogoff();
 		}
 	}
 
 	@Path("/{id}")
 	@PUT
 	public Response update(@PathParam("id") long id, String data, @Context HttpServletRequest request) {
+		Security.nestedLogin( (SoffidPrincipal) ((HttpServletRequest) request).getUserPrincipal());
 		try {
 			JSONBuilder b = new JSONBuilder(request);
 			PagedResult<E> objs = getCrud().read(null, "id eq \""+id+"\"", null, null);
@@ -259,6 +276,8 @@ public class BaseRest<E> {
 		} catch (Exception e) {
 			log.warn("Error processing SCIM Request "+request.getRequestURL(), e);
 			return SCIMResponseBuilder.errorGeneric(e);
+		} finally {
+			Security.nestedLogoff();
 		}
 	}
 
@@ -270,6 +289,7 @@ public class BaseRest<E> {
 	@Path("/{id}")
 	@PATCHAnnotation
 	public Response patch(@PathParam("id") long id, String data, @Context HttpServletRequest request) {
+		Security.nestedLogin( (SoffidPrincipal) ((HttpServletRequest) request).getUserPrincipal());
 		try {
 			JSONBuilder b = new JSONBuilder(request);
 			PagedResult<E> objs = getCrud().read(null, "id eq \""+id+"\"", null, null);
@@ -297,6 +317,8 @@ public class BaseRest<E> {
 		} catch (Exception e) {
 			log.warn("Error processing SCIM Request "+request.getRequestURL(), e);
 			return SCIMResponseBuilder.errorGeneric(e);
+		} finally {
+			Security.nestedLogoff();
 		}
 	}
 
