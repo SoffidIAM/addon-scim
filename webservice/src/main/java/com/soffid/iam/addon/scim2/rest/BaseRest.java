@@ -351,7 +351,7 @@ public class BaseRest<E> {
 			if (path != null && ! path.trim().isEmpty()) {
 				if (path.contains("[")) throw new Exception("search clause is not supported");
 				String[] split = path.split("\\.");
-				for (int j = 0; i < split.length - 1; j++) {
+				for (int j = 0; j < split.length - 1; j++) {
 					if ( ! old1.has(split[j]))
 						old1.put(split[j], new JSONObject());
 					old1 = old1.getJSONObject(split[j]);

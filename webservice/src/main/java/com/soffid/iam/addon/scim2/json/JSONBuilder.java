@@ -121,7 +121,9 @@ public class JSONBuilder {
 		if (attributes == null)
 			return true;
 		for (String att: attributes) {
-			if (path.equals(att) || path.startsWith(att+"."))
+			if (path.equals(att) || 
+					att.startsWith(path+".") ||
+					path.startsWith(att+"."))
 				return true;
 		}
 		return false;
