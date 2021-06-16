@@ -19,7 +19,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
 
-import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
@@ -94,7 +93,7 @@ public class BaseRest<E> {
 			
 			
 			return Response.ok( (StreamingOutput) output -> {
-				OutputStreamWriter w = new OutputStreamWriter(output);
+				OutputStreamWriter w = new OutputStreamWriter(output, "UTF-8");
 				JSONWriter jsonWriter = new JSONWriter(w);
 				jsonWriter.object();
 				jsonWriter.key("schemas");
@@ -217,7 +216,7 @@ public class BaseRest<E> {
 			} else {
 				E obj = objs.getResources().get(0);
 				return Response.ok( (StreamingOutput) output -> {
-					OutputStreamWriter w = new OutputStreamWriter(output);
+					OutputStreamWriter w = new OutputStreamWriter(output, "UTF-8");
 					writeObject(w, b, obj);
 					w.close();
 					output.close();
@@ -267,7 +266,7 @@ public class BaseRest<E> {
 				E obj = loadObject(o);
 				final E obj2 = update (o, obj);
 				return Response.ok( (StreamingOutput) output -> {
-					OutputStreamWriter w = new OutputStreamWriter(output);
+					OutputStreamWriter w = new OutputStreamWriter(output, "UTF-8");
 					writeObject(w, b, obj2);
 					w.close();
 					output.close();
@@ -308,7 +307,7 @@ public class BaseRest<E> {
 				obj = loadObject(o2);
 				final E obj2 = update(o2, obj);
 				return Response.ok( (StreamingOutput) output -> {
-					OutputStreamWriter w = new OutputStreamWriter(output);
+					OutputStreamWriter w = new OutputStreamWriter(output, "UTF-8");
 					writeObject(w, b, obj2);
 					w.close();
 					output.close();
