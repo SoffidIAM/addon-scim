@@ -36,14 +36,14 @@ public class JSONBuilder {
 
 	public JSONBuilder(HttpServletRequest request) {
 		if (request == null)
-			server = "http://localhost:8080/webservice/scim.v2/";
+			server = "http://localhost:8080/soffid/webservice/scim2/v1/";
 		else {
 			server = ConfigurationCache.getProperty("soffid.externalURL");
 			if (server == null)
 				server = request.getScheme()+"://"+request.getHeader("Host")+":"+request.getServerPort()+"/";
 			if (!server.endsWith("/"))
 				server += "/";
-			server += "webservice/scim2/v1/";
+			server += "soffid/webservice/scim2/v1/";
 		}
 	}
 
