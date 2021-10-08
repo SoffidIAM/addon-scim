@@ -149,10 +149,14 @@ public class AccountREST {
 			account.setAccessLevel(extendedAccount.getAccessLevel());
 			account.setAttributes(extendedAccount.getAttributes());
 			account.setDescription(extendedAccount.getDescription());
-			if (extendedAccount.isDisabled()) {
-				account.setStatus(AccountStatus.DISABLED);
-			} else  {
-				account.setStatus(AccountStatus.ACTIVE);
+			if (extendedAccount.getStatus()!=null) {
+				account.setStatus(extendedAccount.getStatus());
+			} else {
+				if (extendedAccount.isDisabled()) {
+					account.setStatus(AccountStatus.DISABLED);
+				} else  {
+					account.setStatus(AccountStatus.ACTIVE);
+				}
 			}
 			account.setGrantedGroups(extendedAccount.getGrantedGroups());
 			account.setGrantedRoles(extendedAccount.getGrantedRoles());
@@ -194,11 +198,15 @@ public class AccountREST {
 
 			if (extendedAccount.getAccessLevel() != null) account.setAccessLevel(extendedAccount.getAccessLevel());
 			if (extendedAccount.getDescription() != null) account.setDescription(extendedAccount.getDescription());
-			if (extendedAccount.isDisabled() != account.isDisabled()) {
-				if (extendedAccount.isDisabled()) {
-					account.setStatus(AccountStatus.DISABLED);
-				} else  {
-					account.setStatus(AccountStatus.ACTIVE);
+			if (extendedAccount.getStatus()!=null) {
+				account.setStatus(extendedAccount.getStatus());
+			} else {
+				if (extendedAccount.isDisabled()!=account.isDisabled()) {
+					if (extendedAccount.isDisabled()) {
+						account.setStatus(AccountStatus.DISABLED);
+					} else  {
+						account.setStatus(AccountStatus.ACTIVE);
+					}
 				}
 			}
 			if (extendedAccount.getGrantedGroups() != null) account.setGrantedGroups(extendedAccount.getGrantedGroups());
