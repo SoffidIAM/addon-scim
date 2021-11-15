@@ -1,8 +1,8 @@
 package com.soffid.iam.addon.scim.json;
 
-import com.soffid.iam.api.MailList;
+import com.soffid.iam.addon.scim.api1.MailList;
 
-public class MailListJSON extends MailList {
+public class MailListJSON extends com.soffid.iam.addon.scim.api1.MailList {
 
 	private static final long serialVersionUID = 1L;
 	MetaJSON meta = new MetaJSON();
@@ -13,6 +13,11 @@ public class MailListJSON extends MailList {
 	public MailListJSON(MailList mailList) {
 		super (mailList);
 	}
+
+	public MailListJSON(com.soffid.iam.api.MailList mailList) {
+		super (mailList);
+	}
+
 
 	public MetaJSON getMeta() {
 		return meta;

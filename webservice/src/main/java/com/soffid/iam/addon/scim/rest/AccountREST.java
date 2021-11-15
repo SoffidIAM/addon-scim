@@ -88,7 +88,7 @@ public class AccountREST {
 			if (existingAccount!=null)
 				return SCIMResponseBuilder.errorCustom(Status.INTERNAL_SERVER_ERROR, "AccountSvc.accountExits");
 			// now create the account
-			Account newAccount = accountService.createAccount(account);
+			Account newAccount = accountService.createAccount(account.toAccount());
 			if (newAccount != null) {
 				updateAttributes(account, newAccount, true);
 				updateRoles(account, newAccount);
@@ -136,15 +136,14 @@ public class AccountREST {
 
 	@Path("/{id}")
 	@PUT
-	public Response update(@PathParam("id") long id, AccountJSON extendedAccount) {
+	public Response update(@PathParam("id") long id, AccountJSON json) {
 		Account account;
 		try {
 			account = accountService.findAccountById(id);
 			if (account == null) return SCIMResponseBuilder.responseOnlyHTTP(Status.NOT_FOUND);
+			Account extendedAccount = json.toAccount();
 			if (id != extendedAccount.getId())
 				return SCIMResponseBuilder.errorCustom(Status.NOT_FOUND, "AccountSvc.accountNotEquals", id, extendedAccount.getId()); //$NON-NLS-1$
-
-			account = updateAccountLinkUnlik(extendedAccount, account);
 
 			account.setAccessLevel(extendedAccount.getAccessLevel());
 			account.setAttributes(extendedAccount.getAttributes());
@@ -175,9 +174,8 @@ public class AccountREST {
 			account.setVaultFolder(extendedAccount.getVaultFolder());
 			account.setVaultFolderId(extendedAccount.getVaultFolderId());
 
-			account = accountService.updateAccount(account);
-			updateRoles(extendedAccount, account);
-			updateAttributes(extendedAccount, account, true);
+			account = accountService.updateAccount2(account);
+			updateRoles(json, account);
 			return SCIMResponseBuilder.responseOk(toExtendedAccount(account, null));
 		} catch (Exception e) {
 			return SCIMResponseBuilder.errorGeneric(e);
@@ -186,16 +184,17 @@ public class AccountREST {
 
 	@Path("/{id}")
 	@PATCHAnnotation
-	public Response patch(@PathParam("id") long id, AccountJSON extendedAccount) {
+	public Response patch(@PathParam("id") long id, AccountJSON json) {
 		Account account;
 		try {
 			account = accountService.findAccountById(id);
 			if (account == null) return SCIMResponseBuilder.responseOnlyHTTP(Status.NOT_FOUND);
-			if (null != extendedAccount.getId() && id != extendedAccount.getId())
-				return SCIMResponseBuilder.errorCustom(Status.NOT_FOUND, "AccountSvc.accountNotEquals", id, extendedAccount.getId()); //$NON-NLS-1$
+			if (null != json.getId() && id != json.getId().longValue())
+				return SCIMResponseBuilder.errorCustom(Status.NOT_FOUND, "AccountSvc.accountNotEquals", id, json.getId()); //$NON-NLS-1$
 
-			account = updateAccountLinkUnlik(extendedAccount, account);
-
+			Account extendedAccount;
+			extendedAccount = json.toAccount();
+			
 			if (extendedAccount.getAccessLevel() != null) account.setAccessLevel(extendedAccount.getAccessLevel());
 			if (extendedAccount.getDescription() != null) account.setDescription(extendedAccount.getDescription());
 			if (extendedAccount.getStatus()!=null) {
@@ -225,40 +224,14 @@ public class AccountREST {
 			if (extendedAccount.getSystem() != null) account.setSystem(extendedAccount.getSystem());
 			if (extendedAccount.getVaultFolder() != null) account.setVaultFolder(extendedAccount.getVaultFolder());
 			if (extendedAccount.getVaultFolderId() != null) account.setVaultFolderId(extendedAccount.getVaultFolderId());
-			account = accountService.updateAccount(account);
+			account = accountService.updateAccount2(account);
 
-			if (extendedAccount.getRoles() != null) updateRoles(extendedAccount, account);
-			if (extendedAccount.getAttributes()!=null && !extendedAccount.getAttributes().isEmpty()) updateAttributes(extendedAccount, account, true);
+			if (json.getRoles() != null) updateRoles(json, account);
 			return SCIMResponseBuilder.responseOk(toExtendedAccount(account, null));
 		} catch (Exception e) {
 			log.warn("Error updating account", e);
 			return SCIMResponseBuilder.errorGeneric(e);
 		}
-	}
-
-	// If there is the type attribute could have a link or unlink operation
-	private Account updateAccountLinkUnlik(AccountJSON extendedAccount, Account account)
-			throws InternalErrorException, AccountAlreadyExistsException {
-
-		if (extendedAccount.getType() != null) {
-			if (extendedAccount.getType().equals(AccountType.USER)) {
-				account.setOwnerUsers(extendedAccount.getOwnerUsers());
-				account = accountService.updateAccount(account);
-				account.setType(extendedAccount.getType());
-				account = accountService.updateAccount(account);
-			} else {
-				account.setType(extendedAccount.getType());
-				account = accountService.updateAccount(account);
-				account.setOwnerUsers(extendedAccount.getOwnerUsers());
-				account = accountService.updateAccount(account);
-			}
-		} else {
-			if (extendedAccount.getOwnerUsers() != null) {
-				account.setOwnerUsers(extendedAccount.getOwnerUsers());
-				account = accountService.updateAccount(account);
-			}
-		}
-		return account;
 	}
 
 	private Collection<Object> toExtendedAccountList(Collection<Account> accountList, String attributes) throws InternalErrorException {

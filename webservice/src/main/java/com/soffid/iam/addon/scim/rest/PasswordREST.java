@@ -44,14 +44,9 @@ public class PasswordREST {
 				return SCIMResponseBuilder.errorGeneric(new Exception("mustChange obligarori"));
 
 			if (json.getMustChange().booleanValue()) {
-				userService.changePassword(u.getUserName(), "DEFAULT", new Password(json.getPassword()));
+				userService.setTemporaryPassword(u.getUserName(), "DEFAULT", new Password(json.getPassword()));
 			} else {
-				Collection<UserAccount> lua = accountService.getUserAccounts(u);
-				Password p = new Password(json.getPassword());
-				for (UserAccount ua : lua) {
-					accountService.setAccountPassword(ua, p);
-					break;
-				}
+				userService.setPassword(u.getUserName(), "DEFAULT", new Password(json.getPassword()));
 			}
 			return SCIMResponseBuilder.responseOnlyHTTP(Status.OK);
 
