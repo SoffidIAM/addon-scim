@@ -58,7 +58,7 @@ public class NetworkREST {
 	public Response create(NetworkJSON network, @Context HttpServletRequest request) throws URISyntaxException {
 		try {
 			// First create the network
-			Network newNetwork = service.create(network);
+			Network newNetwork = service.create(network.toNetwork());
 			if (newNetwork != null) {
 				// Second create de acls
 				for (NetworkAuthorization acl : network.getAcls()) {
@@ -107,7 +107,8 @@ public class NetworkREST {
 			Network n = service.findNetworkByName(id);
 			if (n == null)
 				return SCIMResponseBuilder.responseOnlyHTTP(Status.NOT_FOUND);
-			service.update(newNetwork);
+			Network n2 = newNetwork.toNetwork();
+			service.update(n2);
 			// Create or update new acls
 			HashMap<String,NetworkAuthorization> hmACL = new HashMap<String,NetworkAuthorization>();
 			for (NetworkAuthorization acl : newNetwork.getAcls()) {
@@ -119,13 +120,13 @@ public class NetworkREST {
 					service.update(acl);
 			}
 			// Delete old soffid acls
-			Collection<NetworkAuthorization> lna = service.getACL(newNetwork);
+			Collection<NetworkAuthorization> lna = service.getACL(n2);
 			for (NetworkAuthorization soffidACL : lna) {
 				if (hmACL.get(soffidACL.getIdentity().getUserCode())==null)
 					service.delete(soffidACL);
 			}
 			// Response
-			return SCIMResponseBuilder.responseOk(toNetworkJSON(newNetwork));
+			return SCIMResponseBuilder.responseOk(toNetworkJSON(n2));
 		} catch (Exception e) {
 			return SCIMResponseBuilder.errorGeneric(e);
 		}
@@ -138,7 +139,8 @@ public class NetworkREST {
 			Network n = service.findNetworkByName(id);
 			if (n == null)
 				return SCIMResponseBuilder.responseOnlyHTTP(Status.NOT_FOUND);
-			service.update(newNetwork);
+			Network n2 = newNetwork.toNetwork();
+			service.update(n2);
 			// Create or update new acls
 			HashMap<String,NetworkAuthorization> hmACL = new HashMap<String,NetworkAuthorization>();
 			for (NetworkAuthorization acl : newNetwork.getAcls()) {
@@ -150,13 +152,13 @@ public class NetworkREST {
 					service.update(acl);
 			}
 			// Delete old soffid acls
-			Collection<NetworkAuthorization> lna = service.getACL(newNetwork);
+			Collection<NetworkAuthorization> lna = service.getACL(n2);
 			for (NetworkAuthorization soffidACL : lna) {
 				if (hmACL.get(soffidACL.getIdentity().getUserCode())==null)
 					service.delete(soffidACL);
 			}
 			// Response
-			return SCIMResponseBuilder.responseOk(toNetworkJSON(newNetwork));
+			return SCIMResponseBuilder.responseOk(toNetworkJSON(n2));
 		} catch (Exception e) {
 			return SCIMResponseBuilder.errorGeneric(e);
 		}

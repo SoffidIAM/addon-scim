@@ -67,7 +67,7 @@ public class RoleRest {
 	@POST
 	public Response create(RoleJSON role, @Context HttpServletRequest request) throws URISyntaxException {
 		try {
-			Role newRole = appService.create2(role);
+			Role newRole = appService.create2(role.toRole());
 			if (newRole != null) {
 				RoleJSON ea = toRoleJSON(newRole);
 				return SCIMResponseBuilder.responseOk(ea, new URI(ea.getMeta().getLocation()));
@@ -120,7 +120,7 @@ public class RoleRest {
 			if (id != newRole.getId())
 				return SCIMResponseBuilder.errorCustom(Status.NOT_FOUND, "RoleSvc.accountNotEquals", id, newRole.getId()); //$NON-NLS-1$
 
-			role = appService.update2(newRole);
+			role = appService.update2(newRole.toRole());
 
 			return SCIMResponseBuilder.responseOk(toRoleJSON(role));
 		} catch (Exception e) {
