@@ -55,7 +55,7 @@ public class HostREST {
 	@POST
 	public Response create(HostJSON host, @Context HttpServletRequest request) throws URISyntaxException {
 		try {
-			Host newHost = service.create(host);
+			Host newHost = service.create(host.toHost());
 			if (newHost != null) {
 				HostJSON hj = toHostJSON(newHost);
 				return SCIMResponseBuilder.responseOk(hj, new URI(hj.getMeta().getLocation()));
@@ -115,8 +115,8 @@ public class HostREST {
 			Host h = service.findHostById(id);
 			if (h == null)
 				return SCIMResponseBuilder.responseOnlyHTTP(Status.NOT_FOUND);
-			service.update(newHost);
-			return SCIMResponseBuilder.responseOk(toHostJSON(newHost));
+			service.update(newHost.toHost());
+			return SCIMResponseBuilder.responseOk(toHostJSON(h));
 		} catch (Exception e) {
 			return SCIMResponseBuilder.errorGeneric(e);
 		}
@@ -129,8 +129,9 @@ public class HostREST {
 			Host h = service.findHostById(id);
 			if (h == null)
 				return SCIMResponseBuilder.responseOnlyHTTP(Status.NOT_FOUND);
-			service.update(newHost);
-			return SCIMResponseBuilder.responseOk(toHostJSON(newHost));
+			h = newHost.toHost();
+			service.update(h);
+			return SCIMResponseBuilder.responseOk(toHostJSON(h));
 		} catch (Exception e) {
 			return SCIMResponseBuilder.errorGeneric(e);
 		}
