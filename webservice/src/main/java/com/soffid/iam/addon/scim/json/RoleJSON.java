@@ -130,7 +130,10 @@ public class RoleJSON {
 		category = role.getCategory();
 		description = role.getDescription();
 		domain = new Domain();
-		domain.setName(role.getDomain());
+		if (role.getDomain()==null)
+			domain.setName("SENSE_DOMINI");
+		else
+			domain.setName(role.getDomain());
 		domain.setExternalCode(role.getInformationSystemName());
 		enableByDefault = role.getEnableByDefault();
 		granteeGroups = role.getGranteeGroups();
