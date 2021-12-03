@@ -113,8 +113,7 @@ public class NetworkREST {
 			HashMap<String,NetworkAuthorization> hmACL = new HashMap<String,NetworkAuthorization>();
 			for (NetworkAuthorization acl : newNetwork.getAcls()) {
 				hmACL.put(acl.getIdentity().getUserCode(), acl);
-				NetworkAuthorization soffidACL = service.findNetworkAuthorizationsByNetworkNameAndIdentityName(newNetwork.getCode(), acl.getIdentity().getUserCode());
-				if (soffidACL==null)
+				if (acl.getId()==null)
 					service.create(acl);
 				else
 					service.update(acl);

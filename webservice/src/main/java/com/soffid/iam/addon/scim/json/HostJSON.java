@@ -140,9 +140,10 @@ public class HostJSON {
 	}
 
 	private List<String> split(String hostAlias2) {
-		if (hostAlias2 == null)
-			return null;
 		List<String> l = new LinkedList<>();
+		if (hostAlias2==null || hostAlias.trim().isEmpty())
+			return l;
+
 		for (String alias: hostAlias2.split(" +"))
 			l.add(alias);
 		return l ;

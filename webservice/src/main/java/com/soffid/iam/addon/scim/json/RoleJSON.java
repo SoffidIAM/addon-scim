@@ -155,7 +155,7 @@ public class RoleJSON {
 		r.setBpmEnforced(bpmEnforced);
 		r.setCategory(category);
 		r.setDescription(description);
-		r.setDomain(domain == null ? null: domain.getName());
+		r.setDomain(domain == null ? "SENSE_DOMINI": domain.getName());
 		r.setEnableByDefault(enableByDefault);
 		r.setGranteeGroups(granteeGroups);
 		r.setId(id);

@@ -309,9 +309,9 @@ public class UserREST {
 
 		// Include user accounts
 		MetaJSON meta = eu.getMeta();
-		meta.setLocation(getClass(), u.getId().toString());
-		meta.setCreated(u.getCreatedDate().getTime());
-		meta.setLastModified(u.getModifiedDate().getTime());
+		if (u.getId()!=null) meta.setLocation(getClass(), u.getId().toString());
+		if (u.getCreatedDate()!=null) meta.setCreated(u.getCreatedDate().getTime());
+		if (u.getModifiedDate()!=null) meta.setLastModified(u.getModifiedDate().getTime());
 		meta.setResourceType(RESOURCE);
 
 		// Include secondary groups
