@@ -2,11 +2,13 @@ package com.soffid.iam.addon.scim.rest;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TimeZone;
 
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
@@ -372,9 +374,17 @@ public class UserREST {
 				if (ua.getId()!=null && (delete || src.getAttributes().containsKey(ua.getAttribute())))
 					dataService.delete(ua);
 			} else {
-				if (value instanceof Date) {
+				Date d = null;
+				try {
+					//2020-08-05T00:00:00+02:00
+					//yyyy-MM-dd'T'HH:mm:ss.SSS'Z
+					SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+					format.setTimeZone(TimeZone.getTimeZone("UTC"));
+					d = format.parse(value.toString());
+				} catch(Exception e) {}
+				if (d!=null) {
 					Calendar c = Calendar.getInstance();
-					c.setTime((Date) value);
+					c.setTime(d);
 					ua.setDateValue(c);
 				} else
 					ua.setValue(value.toString());

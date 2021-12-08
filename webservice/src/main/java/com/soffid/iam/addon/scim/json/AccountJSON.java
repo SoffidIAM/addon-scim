@@ -59,7 +59,6 @@ public class AccountJSON extends Account {
 	 * This field is private and it doesn't be managed in the SCIM REST request/responses
 	 */
 	@JohnzonIgnore private AccountAccessLevelEnum accessLevel;
-	@JohnzonIgnore private AccountStatus status;
 
 	public List<RoleDomainJSON> getInheritedRoles() {
 		return inheritedRoles;
