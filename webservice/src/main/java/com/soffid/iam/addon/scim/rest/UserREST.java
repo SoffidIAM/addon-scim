@@ -27,6 +27,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.logging.LogFactory;
+
 import com.soffid.iam.addon.scim.json.SecondaryGroupJSON;
 import com.soffid.iam.addon.scim.json.MetaJSON;
 import com.soffid.iam.addon.scim.json.UserAccountJSON;
@@ -93,6 +95,7 @@ public class UserREST {
 			} else
 				return SCIMResponseBuilder.responseOnlyHTTP(Status.NOT_FOUND);
 		} catch (EJBException e) {
+			LogFactory.getLog(getClass()).warn("Error creating user", e);
 			return SCIMResponseBuilder.errorCustom(Status.CONFLICT, e);
 		} catch (RuntimeException e) {
 			e.printStackTrace();
