@@ -330,6 +330,7 @@ public class AccountREST {
 					if (ua2.getDomainValue() != null)
 					{
 						ra.getDomainValue().setValue(ua2.getDomainValue());
+						ra.setUserCode(ua2.getUserCode());
 					}
 					ra.setAccountSystem(target.getSystem());
 					applicationService.create(ra);
