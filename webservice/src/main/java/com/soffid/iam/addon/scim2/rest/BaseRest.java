@@ -1,6 +1,9 @@
 package com.soffid.iam.addon.scim2.rest;
 
+import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.net.URISyntaxException;
 
 import javax.ejb.CreateException;
@@ -158,7 +161,12 @@ public class BaseRest<E> {
 			E obj = loadObject(o);
 			E newObj = create(o, obj);
 			if (newObj != null) {
-				JSONObject jsonObject = b.build(newObj);
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
+				OutputStreamWriter w = new OutputStreamWriter(out, "UTF-8");
+				writeObject(w, b, newObj);
+				w.close();
+
+				JSONObject jsonObject = new JSONObject(out.toString("UTF-8"));
 				String uri = jsonObject.getJSONObject("meta").getString("location");
 				return Response
 						.status(201)
