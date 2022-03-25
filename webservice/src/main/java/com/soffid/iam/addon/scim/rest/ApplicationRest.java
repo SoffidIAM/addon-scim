@@ -62,9 +62,11 @@ public class ApplicationRest {
 
 	@Path("")
 	@POST
-	public Response create(ApplicationJSON role, @Context HttpServletRequest request) throws URISyntaxException {
+	public Response create(ApplicationJSON app, @Context HttpServletRequest request) throws URISyntaxException {
 		try {
-			Application newApplication = appService.create(role);
+			if (app.getRelativeName()==null)
+				app.setRelativeName(app.getName());
+			Application newApplication = appService.create(app);
 			if (newApplication != null) {
 				ApplicationJSON ea = toApplicationJSON(newApplication);
 				return SCIMResponseBuilder.responseOk(ea, new URI(ea.getMeta().getLocation()));

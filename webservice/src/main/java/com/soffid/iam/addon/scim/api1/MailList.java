@@ -377,7 +377,18 @@ public class MailList implements java.io.Serializable
 	
 	
 	public MailList(com.soffid.iam.api.MailList ml3) {
-		fromSoffid3Api(ml3);
+		setAttributes(ml3.getAttributes());
+		setDescription(ml3.getDescription());
+		setDomainCode(ml3.getDomainCode());
+		setExplodedUsersList( merge(ml3.getExplodedUsersList()) );
+		setExternalList( merge( ml3.getExternalList() ));
+		setGroupMembers(merge(ml3.getGroupMembers()));
+		setId(ml3.getId());
+		setLists(merge(ml3.getLists()));
+		setListsBelong(ml3.getListsBelong());
+		setName(ml3.getName());
+		setRoleMembers(merge(ml3.getRoleMembers()));
+		setUsersList(merge(ml3.getUsersList()));
 	}
 	
 	public MailList fromSoffid3Api(com.soffid.iam.api.MailList ml3) {

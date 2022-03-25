@@ -29,6 +29,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.logging.LogFactory;
+
 import com.soffid.iam.addon.scim.json.SecondaryGroupJSON;
 import com.soffid.iam.addon.scim.json.MetaJSON;
 import com.soffid.iam.addon.scim.json.UserAccountJSON;
@@ -97,6 +99,7 @@ public class UserREST {
 			} else
 				return SCIMResponseBuilder.responseOnlyHTTP(Status.NOT_FOUND);
 		} catch (EJBException e) {
+			LogFactory.getLog(getClass()).warn("Error creating user", e);
 			return SCIMResponseBuilder.errorCustom(Status.CONFLICT, e);
 		} catch (RuntimeException e) {
 			e.printStackTrace();
@@ -309,9 +312,9 @@ public class UserREST {
 
 		// Include user accounts
 		MetaJSON meta = eu.getMeta();
-		meta.setLocation(getClass(), u.getId().toString());
-		meta.setCreated(u.getCreatedDate().getTime());
-		meta.setLastModified(u.getModifiedDate().getTime());
+		if (u.getId()!=null) meta.setLocation(getClass(), u.getId().toString());
+		if (u.getCreatedDate()!=null) meta.setCreated(u.getCreatedDate().getTime());
+		if (u.getModifiedDate()!=null) meta.setLastModified(u.getModifiedDate().getTime());
 		meta.setResourceType(RESOURCE);
 
 		// Include secondary groups

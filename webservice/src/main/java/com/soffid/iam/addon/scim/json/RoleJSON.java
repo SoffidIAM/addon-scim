@@ -1,10 +1,6 @@
 package com.soffid.iam.addon.scim.json;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.HashMap;
-
-import org.apache.johnzon.mapper.JohnzonIgnore;
 
 import com.soffid.iam.api.Domain;
 import com.soffid.iam.api.Role;
@@ -130,7 +126,10 @@ public class RoleJSON {
 		category = role.getCategory();
 		description = role.getDescription();
 		domain = new Domain();
-		domain.setName(role.getDomain());
+		if (role.getDomain()==null)
+			domain.setName("SENSE_DOMINI");
+		else
+			domain.setName(role.getDomain());
 		domain.setExternalCode(role.getInformationSystemName());
 		enableByDefault = role.getEnableByDefault();
 		granteeGroups = role.getGranteeGroups();
@@ -152,7 +151,7 @@ public class RoleJSON {
 		r.setBpmEnforced(bpmEnforced);
 		r.setCategory(category);
 		r.setDescription(description);
-		r.setDomain(domain == null ? null: domain.getName());
+		r.setDomain(domain==null || "SENSE_DOMINI".equals(domain.getName()) ? null : domain.getName());
 		r.setEnableByDefault(enableByDefault);
 		r.setGranteeGroups(granteeGroups);
 		r.setId(id);

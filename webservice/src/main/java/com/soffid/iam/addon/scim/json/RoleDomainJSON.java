@@ -1,5 +1,4 @@
 package com.soffid.iam.addon.scim.json;
-import java.util.HashMap;
 
 public class RoleDomainJSON {
 
@@ -8,6 +7,7 @@ public class RoleDomainJSON {
 	String roleDescription = null;
 	String informationSystemName = null;
 	String domainValue = null;
+	String userCode = null;
 
 	public Long getId() {
 		return id;
@@ -47,5 +47,13 @@ public class RoleDomainJSON {
 
 	public void setDomainValue(String domainValue) {
 		this.domainValue = domainValue;
+	}
+
+	public String getUserCode() {
+		return userCode;
+	}
+
+	public void setUserCode(String userCode) {
+		this.userCode = userCode;
 	}
 }
