@@ -44,7 +44,7 @@ public class JSONParser {
 					if (field == null)
 						throw new Exception("Invalid property "+key);
 					Object v = o.get(key);
-					v = cast(field.getName(), field.getType(), v);
+					v = cast(field.getName(), field.getGenericType(), v);
 					if (v != null) {
 						String methodName = "set"+ key.substring(0,1).toUpperCase()+ key.substring(1);
 						boolean found = false;
