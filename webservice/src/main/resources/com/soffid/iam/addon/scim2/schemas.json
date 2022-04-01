@@ -33,6 +33,9 @@
   "OUType": {
     "class": "com.soffid.iam.api.OUType"
   },
+  "OsType": {
+    "class": "com.soffid.iam.api.OsType"
+  },
   "ProcessDefinition": {
     "class": "com.soffid.iam.bpm.api.ProcessDefinition",
     "resource": "com/soffid/iam/addon/scim2/processDefinition.json"
