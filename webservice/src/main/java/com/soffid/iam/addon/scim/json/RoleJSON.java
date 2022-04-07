@@ -158,7 +158,7 @@ public class RoleJSON {
 		r.setInformationSystemName(informationSystemName);
 		r.setName(name);
 		r.setOwnedRoles(ownedRoles);
-		r.setOwnerRoles(ownedRoles);
+		r.setOwnerRoles(ownerRoles);
 		r.setPassword(password);
 		r.setSystem(system);
 		return r;
