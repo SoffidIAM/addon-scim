@@ -66,5 +66,11 @@
   },
   "VaultFolder": {
     "class": "com.soffid.iam.api.VaultFolder"
+  },
+  "Printer": {
+    "class": "com.soffid.iam.api.Printer"
+  },
+  "PrinterUser": {
+    "class": "com.soffid.iam.api.PrinterUser"
   }
 }
