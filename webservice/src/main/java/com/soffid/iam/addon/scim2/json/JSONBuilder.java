@@ -40,7 +40,7 @@ public class JSONBuilder {
 		else {
 			server = ConfigurationCache.getProperty("soffid.externalURL");
 			if (server == null)
-				server = request.getScheme()+"://"+request.getHeader("Host")+":"+request.getServerPort()+"/";
+				server = request.getScheme()+"://"+request.getHeader("Host")+"/";
 			if (!server.endsWith("/"))
 				server += "/";
 			server += "soffid/webservice/scim2/v1/";
