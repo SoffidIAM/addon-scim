@@ -4,7 +4,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URISyntaxException;
+import java.util.Collection;
+import java.util.Map;
 
 import javax.ejb.CreateException;
 import javax.naming.NamingException;
@@ -35,10 +39,13 @@ import com.soffid.iam.addon.scim.util.PaginationUtil;
 import com.soffid.iam.addon.scim2.json.JSONBuilder;
 import com.soffid.iam.addon.scim2.json.JSONParser;
 import com.soffid.iam.api.CrudHandler;
+import com.soffid.iam.api.DataType;
 import com.soffid.iam.api.PagedResult;
+import com.soffid.iam.api.Password;
 import com.soffid.iam.common.security.SoffidPrincipal;
 import com.soffid.iam.utils.Security;
 
+import es.caib.seycon.ng.comu.TypeEnumeration;
 import es.caib.seycon.ng.exception.InternalErrorException;
 public class BaseRest<E> {
 
@@ -198,7 +205,25 @@ public class BaseRest<E> {
 	}
 
 	protected E loadObject(JSONObject data) throws Exception {
-		return (E) new JSONParser().load(data, clazz, jsonAttributesToIgnore());
+		E result = (E) new JSONParser().load(data, clazz, jsonAttributesToIgnore());
+		Method m;
+		try {
+			Map<String,Object> attributes = (Map<String, Object>) result.getClass().getMethod("getAttributes").invoke(result);
+			if (attributes != null) {
+				for (DataType att: getMetadata(result)) {
+					if (att.getType() == TypeEnumeration.PASSWORD_TYPE && Boolean.FALSE.equals( att.getBuiltin()))
+					{
+						Object o = attributes.get(att.getName());
+						if ("******".equals(o))
+							attributes.remove(att.getName());
+						else if ( o != null)
+							attributes.put(att.getName(), new Password(o.toString()).toString());
+					}
+				}
+			}			
+		} catch (Exception e) {
+		}
+		return result;
 	}
 
 	public String[] jsonAttributesToIgnore() {
@@ -289,8 +314,27 @@ public class BaseRest<E> {
 	}
 
 	public void writeObject(OutputStreamWriter w, JSONBuilder builder, E obj) {
+		try {
+			Map<String,Object> attributes = (Map<String, Object>) obj.getClass().getMethod("getAttributes").invoke(obj);
+			if (attributes != null) {
+				for (DataType att: getMetadata(obj)) {
+					if (att.getType() == TypeEnumeration.PASSWORD_TYPE && Boolean.FALSE.equals( att.getBuiltin()))
+					{
+						Object o = attributes.get(att.getName());
+						if ( o != null)
+							attributes.put(att.getName(), "******");
+					}
+				}
+			}			
+		} catch (Exception e) {
+		}
 		JSONObject jsonObject = builder.build(obj);
 		jsonObject.write(w);
+	}
+
+	protected Collection<DataType> getMetadata(E obj) throws InternalErrorException, NamingException, CreateException {
+		 return EJBLocator.getAdditionalDataService()
+			.findDataTypesByObjectTypeAndName(obj.getClass().getName(), null);
 	}
 
 	@Path("/{id}")
