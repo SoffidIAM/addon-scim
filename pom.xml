@@ -24,21 +24,28 @@
 		</developer>
 	</developers>
 	<scm>
-		<connection>scm:git:ssh://git@stash.dev.lab:7999/iam2/addon-scim.git</connection>
-		<developerConnection>scm:git:ssh://git@stash.dev.lab:7999/iam2/addon-scim.git</developerConnection>
-		<tag>scim-root-1.2.3</tag>
+		<connection>scm:git:ssh://git@github.com:/SoffidIAM/addon-scim.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com:/SoffidIAM/addon-scim.git</developerConnection>
 	</scm>
 	<build>
 		<defaultGoal>install</defaultGoal>
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-release-plugin</artifactId>
-				<configuration>
-					<preparationGoals>clean install integration-test</preparationGoals>
-					<goals>clean install deploy</goals>
-				</configuration>
-			</plugin>
+		      <plugin>
+		        <groupId>org.apache.maven.plugins</groupId>
+		        <artifactId>maven-release-plugin</artifactId>
+			      <version>2.4.2</version>
+			      <dependencies>
+			        <dependency>
+			          <groupId>org.apache.maven.scm</groupId>
+			          <artifactId>maven-scm-provider-gitexe</artifactId>
+			          <version>1.8.1</version>
+			        </dependency>
+			       </dependencies>
+		        <configuration>
+		          <preparationGoals>clean install integration-test</preparationGoals>
+		          <goals>clean install deploy</goals>
+		        </configuration>
+		      </plugin>
 		</plugins>
 		<pluginManagement />
 	</build>
@@ -55,4 +62,27 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	<repositories>
+		<repository>
+			<id>central</id>
+			<url>http://repo1.maven.org/maven2</url>
+		</repository>
+		<repository>
+			<id>soffid-open</id>
+			<url>https://download.soffid.com/maven</url>
+		</repository>
+	</repositories>
+	<distributionManagement>
+		<repository>
+			<uniqueVersion>true</uniqueVersion>
+			<id>soffid-open</id>
+			<name>Soffid Maven repository</name>
+			<url>${soffid.deploy.url}</url>
+		</repository>
+		<site>
+			<id>soffid-open-site</id>
+			<name>Soffid Maven site repository</name>
+			<url>${soffid.deploy.site.url}</url>
+		</site>
+	</distributionManagement>
 </project>
