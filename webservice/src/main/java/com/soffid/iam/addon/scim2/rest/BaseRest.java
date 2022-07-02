@@ -26,6 +26,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.StreamingOutput;
 
+import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
@@ -191,13 +192,55 @@ public class BaseRest<E> {
 	}
 
 	public E create(JSONObject json, E obj) throws Exception, InternalErrorException, NamingException, CreateException {
+		checkRequiredAttributes(obj, null);
 		E newObj = getCrud().create(obj);
 		return newObj;
 	}
 
-	public E update(JSONObject json, E obj) throws Exception, InternalErrorException, NamingException, CreateException {
+	public E update(JSONObject json, E obj, E old) throws Exception, InternalErrorException, NamingException, CreateException {
+		checkRequiredAttributes(obj, old);
 		E newObj = getCrud().update(obj);
 		return newObj;
+	}
+
+	public void checkRequiredAttributes(E obj, E old) throws InternalErrorException, NamingException, CreateException {
+		Map<String,Object> attributes = null;
+		Map<String,Object> attributesOld = null;
+		try {
+			attributes = (Map<String, Object>) obj.getClass().getMethod("getAttributes").invoke(obj);
+			attributesOld = old == null ? null:
+				(Map<String, Object>) old.getClass().getMethod("getAttributes").invoke(old);
+		} catch (Exception e) {
+		}
+		if (attributes != null) {
+			for (DataType att: getMetadata(obj)) {
+				if ( Boolean.FALSE.equals( att.getBuiltin())) {
+					if (att.getType() == TypeEnumeration.PASSWORD_TYPE)
+					{
+						Object o = attributes.get(att.getName());
+						if (o == null || "******".equals(o))
+							attributes.put(att.getName(), attributesOld == null ? null : attributesOld.get(att.getName()));
+						else if ( attributesOld == null || ! o.equals(attributesOld.get(att.getName())) )
+							attributes.put(att.getName(), new Password(o.toString()).toString());
+					}
+					if (att.isRequired()) {
+						if (attributes.get(att.getName()) == null)
+							throw new InternalErrorException("Attribute "+att.getName()+" is required");
+					}
+				} else {
+					if (att.isRequired()) {
+						Object value = null;
+						try {
+							value = PropertyUtils.getProperty(obj, att.getName());
+						} catch (Exception e) {
+							value = "X";
+						}
+						if (value == null)
+							throw new InternalErrorException("Attribute "+att.getName()+" is required");
+					}
+				}
+			}
+		}
 	}
 	
 	public void delete(E obj) throws Exception, InternalErrorException, NamingException, CreateException {
@@ -206,23 +249,6 @@ public class BaseRest<E> {
 
 	protected E loadObject(JSONObject data) throws Exception {
 		E result = (E) new JSONParser().load(data, clazz, jsonAttributesToIgnore());
-		Method m;
-		try {
-			Map<String,Object> attributes = (Map<String, Object>) result.getClass().getMethod("getAttributes").invoke(result);
-			if (attributes != null) {
-				for (DataType att: getMetadata(result)) {
-					if (att.getType() == TypeEnumeration.PASSWORD_TYPE && Boolean.FALSE.equals( att.getBuiltin()))
-					{
-						Object o = attributes.get(att.getName());
-						if ("******".equals(o))
-							attributes.remove(att.getName());
-						else if ( o != null)
-							attributes.put(att.getName(), new Password(o.toString()).toString());
-					}
-				}
-			}			
-		} catch (Exception e) {
-		}
 		return result;
 	}
 
@@ -297,7 +323,7 @@ public class BaseRest<E> {
 				JSONObject o = new JSONObject(data);
 				o.put("id", id);
 				E obj = loadObject(o);
-				final E obj2 = update (o, obj);
+				final E obj2 = update (o, obj, objs.getResources().get(0));
 				return Response.ok( (StreamingOutput) output -> {
 					OutputStreamWriter w = new OutputStreamWriter(output, "UTF-8");
 					writeObject(w, b, obj2);
@@ -349,6 +375,7 @@ public class BaseRest<E> {
 			} else {
 				JSONObject o = new JSONObject(data);
 				E obj = objs.getResources().get(0);
+				E objb = getCrud().read(null, "id eq \""+id+"\"", null, null).getResources().get(0);
 				JSONObject o2 = b.build(obj);
 				if (o.has("Operations")) {
 					o2 = newPatch(o2, o);
@@ -357,7 +384,7 @@ public class BaseRest<E> {
 				}
 				o2.put("id", id);
 				obj = loadObject(o2);
-				final E obj2 = update(o2, obj);
+				final E obj2 = update(o2, obj, objb);
 				return Response.ok( (StreamingOutput) output -> {
 					OutputStreamWriter w = new OutputStreamWriter(output, "UTF-8");
 					writeObject(w, b, obj2);
