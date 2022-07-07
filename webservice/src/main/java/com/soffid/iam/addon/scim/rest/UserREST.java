@@ -29,6 +29,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.soffid.iam.addon.scim.json.SecondaryGroupJSON;
@@ -62,7 +63,8 @@ import es.caib.seycon.util.Base64;
 @Consumes({"application/scim+json", "application/json"})
 @ServletSecurity(@HttpConstraint(rolesAllowed = {"scim:invoke"}))
 public class UserREST {
-
+	Log log = LogFactory.getLog(getClass());
+	
 	static final String RESOURCE = "User";
 	@EJB UserService userService;
 	@EJB AccountService accountService;
@@ -115,10 +117,6 @@ public class UserREST {
 		for (GroupUser ug : groups) {
 			boolean found = false;
 			for (SecondaryGroupJSON ug2 : src.getSecondaryGroups()) {
-				if (ug2.getId() != null && ug2.getId().longValue() == ug.getId().longValue()) {
-					found = true;
-					break;
-				}
 				if (ug2.getGroup() != null && ug2.getGroup().equals(ug.getGroup()))
 				{
 					found = true;
@@ -135,10 +133,6 @@ public class UserREST {
 				for (GroupUser ug : groups)
 				{
 					
-					if (ug2.getId() != null && ug2.getId().longValue() == ug.getId().longValue()) {
-						found = true;
-						break;
-					}
 					if (ug2.getGroup() != null && ug2.getGroup().equals(ug.getGroup()))
 					{
 						found = true;
@@ -225,6 +219,7 @@ public class UserREST {
 			updateSecondaryGroups(user, user2);
 			return SCIMResponseBuilder.responseOk(toExtendedUser(user2));
 		} catch (Exception e) {
+			log.warn("Error updating user", e);
 			return SCIMResponseBuilder.errorGeneric(e);
 		}
 	}
