@@ -38,9 +38,9 @@ public class ProcessInstanceRest extends BaseRest<ProcessInstance> {
 	}
 
 	@Override
-	public ProcessInstance update(JSONObject json, ProcessInstance obj)
+	public ProcessInstance update(JSONObject json, ProcessInstance obj, ProcessInstance old)
 			throws Exception, InternalErrorException, NamingException, CreateException {
-		ProcessInstance ti = super.update(json, obj);
+		ProcessInstance ti = super.update(json, obj, old);
 		if (json.has("transition")) {
 			String transition = json.getString("transition");
 			BpmEngine engine = EJBLocator.getBpmEngine();

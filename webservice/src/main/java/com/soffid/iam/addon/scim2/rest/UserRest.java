@@ -43,9 +43,9 @@ public class UserRest extends BaseRest<User> {
 	}
 
 	@Override
-	public User update(JSONObject json, User obj)
+	public User update(JSONObject json, User obj, User old)
 			throws Exception, InternalErrorException, NamingException, CreateException {
-		User user = super.update(json, obj);
+		User user = super.update(json, obj, old);
 		updatePassword(json, user);
 		return user;
 	}
@@ -61,7 +61,7 @@ public class UserRest extends BaseRest<User> {
 				else domain = "DEFAULT";
 				String value = d.getString("value");
 				try {
-					if (json.has("passwordExpired") && ! json.getBoolean("passwordExpired"))
+					if (d.has("passwordExpired") && ! d.getBoolean("passwordExpired"))
 						EJBLocator.getUserService().setPassword(user.getUserName(), domain, new Password(value));
 					else
 						EJBLocator.getUserService().setTemporaryPassword(user.getUserName(), domain, new Password(value));

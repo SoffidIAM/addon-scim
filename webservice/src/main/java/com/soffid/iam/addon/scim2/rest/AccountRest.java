@@ -63,9 +63,9 @@ public class AccountRest extends BaseRest<Account> {
 	}
 	
 	@Override
-	public Account update(JSONObject json, Account obj)
+	public Account update(JSONObject json, Account obj, Account old)
 			throws Exception, InternalErrorException, NamingException, CreateException {
-		Account account = super.update(json, obj);
+		Account account = super.update(json, obj, old);
 		updatePassword(json, account);
 		return account;
 	}

@@ -37,9 +37,9 @@ public class TaskInstanceRest extends BaseRest<TaskInstance> {
 	}
 
 	@Override
-	public TaskInstance update(JSONObject json, TaskInstance obj)
+	public TaskInstance update(JSONObject json, TaskInstance obj, TaskInstance old)
 			throws Exception, InternalErrorException, NamingException, CreateException {
-		TaskInstance ti = super.update(json, obj);
+		TaskInstance ti = super.update(json, obj, old);
 		BpmEngine engine = EJBLocator.getBpmEngine();
 		if (json.has("comment")) {
 			engine.addComment(ti, json.getString("comment"));
