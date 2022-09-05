@@ -109,20 +109,14 @@ public class NetworkREST {
 				return SCIMResponseBuilder.responseOnlyHTTP(Status.NOT_FOUND);
 			Network n2 = newNetwork.toNetwork();
 			service.update(n2);
-			// Create or update new acls
-			HashMap<String,NetworkAuthorization> hmACL = new HashMap<String,NetworkAuthorization>();
-			for (NetworkAuthorization acl : newNetwork.getAcls()) {
-				hmACL.put(acl.getIdentity().getUserCode(), acl);
-				if (acl.getId()==null)
-					service.create(acl);
-				else
-					service.update(acl);
-			}
 			// Delete old soffid acls
 			Collection<NetworkAuthorization> lna = service.getACL(n2);
 			for (NetworkAuthorization soffidACL : lna) {
-				if (hmACL.get(soffidACL.getIdentity().getUserCode())==null)
-					service.delete(soffidACL);
+				service.delete(soffidACL);
+			}
+			// Create or update new acls
+			for (NetworkAuthorization acl : newNetwork.getAcls()) {
+				service.create(acl);
 			}
 			// Response
 			return SCIMResponseBuilder.responseOk(toNetworkJSON(n2));
