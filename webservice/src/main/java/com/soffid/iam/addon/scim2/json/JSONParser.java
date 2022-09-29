@@ -23,6 +23,7 @@ import org.json.JSONObject;
 
 public class JSONParser {
 	public static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	public static SimpleDateFormat dateFormat2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
 
 	public<E> E load(JSONObject data, Class<E> clazz, String ignore[]) throws Exception {
 		E r = clazz.newInstance();
@@ -129,8 +130,13 @@ public class JSONParser {
 		} else if (rt == Date.class) {
 			if (v instanceof String) {
 				try {
-					return dateFormat.parse((String)v);
+					return dateFormat2.parse((String)v);
 				} catch (ParseException e) {
+					try {
+						return dateFormat.parse((String)v);
+					} catch (ParseException e2) {
+						
+					}
 				}
 			}
 			else if (v instanceof Integer || v instanceof Long) {
@@ -141,9 +147,15 @@ public class JSONParser {
 			if (v instanceof String) {
 				try {
 					Calendar c = Calendar.getInstance();
-					c.setTime( dateFormat.parse((String)v) );
+					c.setTime( dateFormat2.parse((String)v) );
 					return c;
 				} catch (ParseException e) {
+					try {
+						Calendar c = Calendar.getInstance();
+						c.setTime( dateFormat.parse((String)v) );
+						return c;
+					} catch (ParseException e2) {
+					}
 				}
 			}
 			else if (v instanceof Integer || v instanceof Long) {

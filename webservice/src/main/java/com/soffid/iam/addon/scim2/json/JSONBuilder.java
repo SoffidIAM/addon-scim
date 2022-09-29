@@ -150,10 +150,16 @@ public class JSONBuilder {
             }
 
             if (object instanceof Date) {
-                return JSONParser.dateFormat.format((Date) object);
+                String s = JSONParser.dateFormat2.format((Date) object);
+                if (s.endsWith(".000"))
+                	s = s.substring(0, s.length()-4);
+                return s;
             }
             if (object instanceof Calendar) {
-                return JSONParser.dateFormat.format(((Calendar) object).getTime());
+                String s = JSONParser.dateFormat2.format(((Calendar) object).getTime());
+                if (s.endsWith(".000"))
+                	s = s.substring(0, s.length()-4);
+                return s;
             }
             if (object instanceof Collection) {
                 Collection<?> coll = (Collection<?>) object;
