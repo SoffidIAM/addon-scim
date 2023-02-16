@@ -10,6 +10,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.net.URL;
 import java.sql.Date;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
@@ -21,7 +22,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.ibm.icu.util.Calendar;
 import com.soffid.iam.EJBLocator;
 import com.soffid.iam.ServiceLocator;
 import com.soffid.iam.api.DataType;

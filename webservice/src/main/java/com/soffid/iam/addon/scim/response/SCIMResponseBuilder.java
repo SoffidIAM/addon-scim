@@ -10,6 +10,7 @@ import org.apache.commons.logging.LogFactory;
 import com.soffid.iam.addon.scim.rest.Messages;
 
 import es.caib.seycon.ng.exception.InternalErrorException;
+import es.caib.seycon.ng.exception.SoffidStackTrace;
 
 public class SCIMResponseBuilder {
 
@@ -66,18 +67,6 @@ public class SCIMResponseBuilder {
 	 * Search and return the original message of the list of exceptions
 	 */
 	private static String getOriginalMessage(Exception e) {
-		if (e == null) return "";
-		String message = "";
-		Throwable throwable = e.getCause();
-		if (throwable==null) 
-			return (e instanceof InternalErrorException || e.getClass() == Exception.class)? e.getMessage(): e.toString();
-		while (throwable != null) {
-			message = throwable.getMessage();
-			if (message == null)
-				message = throwable.toString();
-			throwable = throwable.getCause();
-		}
-		message = message.replaceAll("\n", " ");
-		return message;
+		return SoffidStackTrace.generateShortDescription(e);
 	}
 }

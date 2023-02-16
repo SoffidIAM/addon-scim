@@ -21,6 +21,7 @@ import com.soffid.iam.api.Password;
 import com.soffid.iam.api.User;
 import com.soffid.iam.api.UserAccount;
 import com.soffid.iam.service.ejb.AccountService;
+import com.soffid.iam.service.ejb.PasswordService;
 import com.soffid.iam.service.ejb.UserService;
 
 @Path("/scim/Password")
@@ -31,6 +32,7 @@ public class PasswordREST {
 
 	@EJB UserService userService;
 	@EJB AccountService accountService;
+	@EJB PasswordService passwordService;
 
 	@Path("")
 	@PUT
