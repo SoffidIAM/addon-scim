@@ -6,6 +6,9 @@
   "Application": {
     "class": "com.soffid.iam.api.Application"
   },
+  "Audit": {
+    "class": "com.soffid.iam.api.Audit"
+  },
   "CustomObject": {
     "class": "com.soffid.iam.api.CustomObject"
   },

@@ -83,6 +83,8 @@ public class AccountRest extends BaseRest<Account> {
 		
 		addReference (builder, jsonObject, "roleAccounts", "RoleAccount?filter=account.id+eq+"+obj.getId()+"+and+enabled+eq+true");
 
+		addReference (builder, jsonObject, "briefAudit", "Audit?filter=searchIndex+eq+'ACC%23"+encode(obj.getId().toString())+"'");
+
 		jsonObject.write(w);
 	}
 }
