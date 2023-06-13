@@ -27,7 +27,7 @@
 		<dependency>
 			<groupId>com.soffid.iam.console</groupId>
 			<artifactId>iam-core</artifactId>
-			<version>3.0.0</version>
+			<version>3.5.0-m1</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
