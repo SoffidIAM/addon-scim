@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import javax.ejb.CreateException;
+import javax.json.JsonObject;
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.DELETE;
@@ -52,11 +53,18 @@ public class BaseRest<E> {
 
 	private Class clazz;
 	Log log = LogFactory.getLog(getClass());
+	private String clazzName;
 	public BaseRest (Class<E> cl) {
 		this.clazz = cl;
 	}
-	
-	CrudHandler<E> getCrud() throws InternalErrorException, NamingException, CreateException {
+
+	public BaseRest (String className) {
+		this.clazzName = className;
+	}
+
+	CrudHandler<E> getCrud() throws InternalErrorException, NamingException, CreateException, ClassNotFoundException {
+		if (clazz == null)
+			clazz = Class.forName(clazzName);
 		return EJBLocator.getCrudRegistryService().getHandler(clazz);
 	}
 
@@ -248,6 +256,8 @@ public class BaseRest<E> {
 	}
 
 	protected E loadObject(JSONObject data) throws Exception {
+		if (clazz == null)
+			clazz = Class.forName(clazzName);
 		E result = (E) new JSONParser().load(data, clazz, jsonAttributesToIgnore());
 		return result;
 	}
@@ -468,10 +478,16 @@ public class BaseRest<E> {
 					replaceValues(old1, last, value);
 				} else if (value instanceof JSONObject) {
 					JSONObject valueObj = (JSONObject) value;
-					if (last != null)
-						old1 = old1.getJSONObject(last);
+					JSONObject o = old1;
+					if (last != null) {
+						o = old1.optJSONObject(last);
+						if (o == null) {
+							o = new JSONObject();
+							old1.put(last, o);
+						}
+					}
 					for (String key: valueObj.keySet()) {
-						replaceValues(old1, key, valueObj.get(key));
+						replaceValues(o, key, valueObj.get(key));
 					}
 				} else {
 					if (last == null)
