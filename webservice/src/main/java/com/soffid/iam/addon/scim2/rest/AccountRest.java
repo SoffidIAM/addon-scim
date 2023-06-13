@@ -44,14 +44,19 @@ public class AccountRest extends BaseRest<Account> {
 	public void updatePassword(JSONObject json, Account account)
 			throws InternalErrorException, NamingException, CreateException {
 		if (json.has("password")) {
-			JSONObject d = json.getJSONObject("password");
-			String value = d.getString("value");
+			Object p = json.get("password");
 			try {
-				if (json.has("expired") && ! json.getBoolean("expired"))
-					EJBLocator.getAccountService().setAccountPassword(account, new Password(json.getString("password")));
-				else
-					EJBLocator.getAccountService().setAccountTemporaryPassword(account, new Password(json.getString("password")));
-				nothing(); // Hack to avoid compilation error
+				if (p instanceof String) {
+					EJBLocator.getAccountService().setAccountTemporaryPassword(account, new Password(p.toString()));
+				} else {
+					JSONObject d = json.getJSONObject("password");
+					String value = d.getString("value");
+					if (json.has("expired") && ! json.getBoolean("expired"))
+						EJBLocator.getAccountService().setAccountPassword(account, new Password(value));
+					else
+						EJBLocator.getAccountService().setAccountTemporaryPassword(account, new Password(value));
+					nothing(); // Hack to avoid compilation error
+				}
 			} catch (BadPasswordException e) {
 				throw new InternalErrorException("Error setting the password: "+e);
 			}
