@@ -104,6 +104,8 @@ public class UserRest extends BaseRest<User> {
 
 		addReference (builder, jsonObject, "groupUsers", "GroupUser?filter=user+eq+'"+encode(obj.getUserName())+"'+and+disabled+eq+false");
 
+		addReference (builder, jsonObject, "issues", "Issue?filter=user.userName+eq+'"+encode(obj.getUserName())+"'");
+		
 		addReference (builder, jsonObject, "effectiveGrants", "User/"+encode(obj.getId().toString())+"/effectiveGrants");
 
 		jsonObject.write(w);
