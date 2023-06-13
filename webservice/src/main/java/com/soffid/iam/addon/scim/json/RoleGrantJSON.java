@@ -22,9 +22,27 @@ public class RoleGrantJSON extends RoleGrant {
 			String ownerSystem, String ownerGroup, Long ownerRole, String ownerRolDomainValue, String ownerRoleName,
 			String ownerRoleDescription, String user, Date startDate, Date endDate, boolean enabled, String holderGroup,
 			RoleDependencyStatus status, Boolean mandatory) {
-		super(id, roleId, roleName, roleDescription, system, informationSystem, hasDomain, domainValue, ownerAccountName,
-				ownerSystem, ownerGroup, ownerRole, ownerRolDomainValue, ownerRoleName, ownerRoleDescription, user, startDate,
-				endDate, enabled, holderGroup, status, mandatory);
+		setId( id );
+		setRoleId( roleId );
+		setRoleName( roleName );
+		setRoleDescription( roleDescription );
+		setSystem( system );
+		setInformationSystem( informationSystem );
+		setHasDomain( hasDomain );
+		setDomainValue( domainValue );
+		setOwnerAccountName( ownerAccountName );
+		setOwnerSystem( ownerSystem );
+		setOwnerGroup( ownerGroup );
+		setOwnerRole( ownerRole );
+		setOwnerRolDomainValue( ownerRolDomainValue );
+		setOwnerRoleName( ownerRoleName );
+		setOwnerRoleDescription( ownerRoleDescription );
+		setUser( user );
+		setStartDate( startDate );
+		setEndDate( endDate );
+		setHolderGroup( holderGroup );
+		setStatus( status );
+		setMandatory( mandatory );
 	}
 
 	public RoleGrantJSON(Long roleId, String roleName, String system, boolean hasDomain, boolean enabled) {
