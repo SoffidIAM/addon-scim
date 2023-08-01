@@ -5,7 +5,7 @@
 	<groupId>com.soffid.iam.addon.scim</groupId>
 	<packaging>pom</packaging>
 	<name>Soffid IAM WebService API</name>
-	<version>3.0.19</version>
+	<version>3.0.20-SNAPSHOT</version>
 	<description>Soffid SCIM REST Web Service Add-on</description>
 	<prerequisites>
 		<maven>2.0.1</maven>
@@ -21,7 +21,7 @@
 	<scm>
 		<connection>scm:git:ssh://git@github.com:/SoffidIAM/addon-scim.git</connection>
 		<developerConnection>scm:git:ssh://git@github.com:/SoffidIAM/addon-scim.git</developerConnection>
-	  <tag>version-3.0.19</tag>
+	  <tag>HEAD</tag>
   </scm>
 	<build>
 		<defaultGoal>install</defaultGoal>
