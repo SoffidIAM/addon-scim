@@ -75,5 +75,8 @@
   },
   "PrinterUser": {
     "class": "com.soffid.iam.api.PrinterUser"
+  },
+  "Issue": {
+    "class": "com.soffid.iam.api.Issue"
   }
 }
