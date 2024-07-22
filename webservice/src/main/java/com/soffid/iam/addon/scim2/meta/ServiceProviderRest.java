@@ -72,7 +72,7 @@ public class ServiceProviderRest {
 		try {
 			JSONBuilder b = new JSONBuilder(request);
 			JSONObject root = new JSONObject(template);
-			root.getJSONObject("meta").put("location", b.getServer()+"ServiceProvider");
+			root.getJSONObject("meta").put("location", b.getServer()+"ServiceProviderConfig");
 			return Response.ok( (StreamingOutput) output -> {
 				OutputStreamWriter w = new OutputStreamWriter(output);
 				root.write(w);

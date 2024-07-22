@@ -88,7 +88,7 @@ public class BaseRest<E> {
 		Security.nestedLogin( (SoffidPrincipal) ((HttpServletRequest) request).getUserPrincipal());
 		try {
 			PaginationUtil p = new PaginationUtil(startIndex, count);
-			if (p.getCount() <= 0) p.setCount(100);
+			if (p.getCount() < 0) p.setCount(100);
 			if (p.getCount() > 1000) p.setCount(1000);
 			
 			if (sortBy != null && !sortBy.trim().isEmpty()) {
