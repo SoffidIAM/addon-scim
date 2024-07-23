@@ -5,7 +5,7 @@ public class PaginationUtil {
 	private boolean active = false;
 
 	private int startIndex = -1;
-	private int count = -1;
+	private int count = 100;
 
 	private int totalResults = -1;
 	private int itemsPerPage = -1;
